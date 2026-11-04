@@ -99,6 +99,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.izumi.appopsnext.AppOpsNextApplication
 import dev.izumi.appopsnext.R
 import dev.izumi.appopsnext.apps.model.InstalledApp
@@ -204,7 +205,7 @@ fun AppOpsApp(
                 ) {
                     Text(
                         stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f),
                     )
@@ -224,7 +225,12 @@ fun AppOpsApp(
                         modifier = Modifier.padding(start = 24.dp, top = 20.dp, bottom = 12.dp),
                     )
                     NavigationDrawerItem(
-                        label = { Text(stringResource(R.string.shell_nav_reselect_mode)) },
+                        label = {
+                            Text(
+                                stringResource(R.string.shell_nav_reselect_mode),
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        },
                         icon = { Icon(Icons.Filled.Settings, null) },
                         selected = false,
                         onClick = {
@@ -233,7 +239,9 @@ fun AppOpsApp(
                             onModeChosenChange(false)
                             closeDrawer()
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        modifier = Modifier
+                            .padding(NavigationDrawerItemDefaults.ItemPadding)
+                            .height(48.dp),
                     )
                 } else {
                     Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -243,15 +251,20 @@ fun AppOpsApp(
                         NAV_TOOLS.forEach { e -> DrawerRow(e, page == e.id) { page = e.id; closeDrawer() } }
                         HorizontalDivider(Modifier.padding(vertical = 8.dp))
                         NAV_TEXT.forEach { res ->
-                            Text(
-                                stringResource(res),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .height(48.dp)
                                     .clickable { closeDrawer() }
-                                    .padding(horizontal = 28.dp, vertical = 16.dp),
-                            )
+                                    .padding(horizontal = 24.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    stringResource(res),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
                     }
                 }
@@ -367,12 +380,19 @@ private fun DrawerRow(entry: NavEntry, selected: Boolean, onClick: () -> Unit) {
         }
     } else null
     NavigationDrawerItem(
-        label = { Text(stringResource(entry.label)) },
+        label = {
+            Text(
+                stringResource(entry.label),
+                style = MaterialTheme.typography.labelLarge,
+            )
+        },
         icon = { Icon(entry.icon, contentDescription = null) },
         badge = chip,
         selected = selected,
         onClick = onClick,
-        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+        modifier = Modifier
+            .padding(NavigationDrawerItemDefaults.ItemPadding)
+            .height(48.dp),
     )
 }
 
