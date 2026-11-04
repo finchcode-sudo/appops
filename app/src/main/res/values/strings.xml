@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">App Ops</string>
+
+    <!-- 工作模式页 -->
+    <string name="choose_mode">选择一个工作模式:</string>
+    <string name="mode_shizuku">Shizuku 模式</string>
+    <string name="mode_shizuku_pros">+ 在 root 和非 root 设备上均可工作\n+ 非常快，资源消耗可忽略不计\n+ 享受全部功能</string>
+    <string name="mode_shizuku_cons">- 需要安装一个开源应用（Shizuku）\n- 对于非 root 设备，每次设备重新启动都需要通过电脑使用 adb 来启动 Shizuku\n- 对于 Android 11 及以上设备，Shizuku 无需电脑即可启动</string>
+    <string name="action_continue">继续</string>
+
+    <!-- 选项菜单 -->
+    <string name="menu_options">选项</string>
+    <string name="menu_show_system">显示系统应用</string>
+    <string name="menu_show_framework">显示系统框架应用</string>
+
+    <!-- 抽屉 -->
+    <string name="nav_apps_view">应用视图</string>
+    <string name="nav_permissions_view">权限视图</string>
+    <string name="nav_usage_history">使用情况历史</string>
+    <string name="nav_try_first">抢先体验</string>
+    <string name="nav_clipboard_monitor">剪贴板监视器</string>
+    <string name="nav_usage_monitor">使用情况监视器</string>
+    <string name="nav_templates">模版</string>
+    <string name="nav_new_app_behavior">新应用行为</string>
+    <string name="nav_backup_restore">备份和恢复</string>
+    <string name="nav_auto_restore">自动恢复</string>
+    <string name="nav_settings">设置</string>
+    <string name="nav_my_purchases">我的购买</string>
+    <string name="nav_help">帮助和支持</string>
+    <string name="nav_changelog">变更日志</string>
+    <string name="nav_about">关于</string>
+    <string name="nav_work_mode">工作模式</string>
+    <string name="nav_reselect_mode">重新选择工作模式</string>
+
+    <string name="placeholder">界面占位，功能待接入</string>
+    <string name="search">搜索</string>
+    <string name="filter">选项</string>
+</resources>
