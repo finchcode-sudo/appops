@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_choose_mode">选择一个工作模式:</string>
+    <string name="shell_mode_shizuku">Shizuku 模式</string>
+    <string name="shell_mode_shizuku_pros">+ 在 root 和非 root 设备上均可工作\n+ 非常快，资源消耗可忽略不计\n+ 享受全部功能</string>
+    <string name="shell_mode_shizuku_cons">- 需要安装一个开源应用（Shizuku）\n- 对于非 root 设备，每次设备重新启动都需要通过电脑使用 adb 来启动 Shizuku\n- 对于 Android 11 及以上设备，Shizuku 无需电脑即可启动</string>
+    <string name="shell_continue">继续</string>
+
+    <string name="shell_menu_options">选项</string>
+    <string name="shell_menu_show_system">显示系统应用</string>
+    <string name="shell_menu_show_framework">显示系统框架应用</string>
+
+    <string name="shell_nav_apps_view">应用视图</string>
+    <string name="shell_nav_permissions_view">权限视图</string>
+    <string name="shell_nav_usage_history">使用情况历史</string>
+    <string name="shell_nav_try_first">抢先体验</string>
+    <string name="shell_nav_clipboard_monitor">剪贴板监视器</string>
+    <string name="shell_nav_usage_monitor">使用情况监视器</string>
+    <string name="shell_nav_templates">模版</string>
+    <string name="shell_nav_new_app_behavior">新应用行为</string>
+    <string name="shell_nav_backup_restore">备份和恢复</string>
+    <string name="shell_nav_auto_restore">自动恢复</string>
+    <string name="shell_nav_settings">设置</string>
+    <string name="shell_nav_help">帮助和支持</string>
+    <string name="shell_nav_changelog">变更日志</string>
+    <string name="shell_nav_about">关于</string>
+    <string name="shell_nav_work_mode">工作模式</string>
+    <string name="shell_nav_reselect_mode">重新选择工作模式</string>
+
+    <string name="shell_placeholder">功能待接入</string>
+    <string name="shell_search">搜索</string>
+    <string name="shell_search_hint">搜索应用或包名</string>
+    <string name="shell_close">关闭</string>
+    <string name="shell_filter">选项</string>
+
+    <string name="shell_status_checking">正在检查 Shizuku…</string>
+    <string name="shell_status_not_installed">未安装 Shizuku</string>
+    <string name="shell_status_not_running">Shizuku 未运行，请先启动 Shizuku</string>
+    <string name="shell_status_unsupported">当前 Shizuku 版本不受支持（需要 13 或更高）</string>
+    <string name="shell_status_permission">需要授予 Shizuku 权限</string>
+    <string name="shell_status_permission_denied">Shizuku 授权被拒绝</string>
+    <string name="shell_status_read_failed">无法读取 Shizuku 状态</string>
+    <string name="shell_status_connecting">正在连接后端…</string>
+    <string name="shell_status_connected">Shizuku 已连接</string>
+    <string name="shell_status_backend_failed">后端连接失败</string>
+    <string name="shell_status_disconnected">后端未连接</string>
+    <string name="shell_action_authorize">授权</string>
+    <string name="shell_action_retry">重试</string>
+
+    <string name="shell_apps_loading">正在加载应用…</string>
+    <string name="shell_apps_empty">没有可显示的应用</string>
+    <string name="shell_apps_failed">无法加载应用列表</string>
+</resources>

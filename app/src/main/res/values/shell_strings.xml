@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_choose_mode">Choose a working mode:</string>
+    <string name="shell_mode_shizuku">Shizuku mode</string>
+    <string name="shell_mode_shizuku_pros">+ Works on rooted and non-rooted devices\n+ Very fast, negligible resource usage\n+ Enjoy all features</string>
+    <string name="shell_mode_shizuku_cons">- Requires installing an open-source app (Shizuku)\n- On non-rooted devices, Shizuku must be started with adb from a computer after every reboot\n- On Android 11 and above, Shizuku can start without a computer</string>
+    <string name="shell_continue">Continue</string>
+
+    <string name="shell_menu_options">Options</string>
+    <string name="shell_menu_show_system">Show system apps</string>
+    <string name="shell_menu_show_framework">Show system framework apps</string>
+
+    <string name="shell_nav_apps_view">Apps view</string>
+    <string name="shell_nav_permissions_view">Permissions view</string>
+    <string name="shell_nav_usage_history">Usage history</string>
+    <string name="shell_nav_try_first">Early access</string>
+    <string name="shell_nav_clipboard_monitor">Clipboard monitor</string>
+    <string name="shell_nav_usage_monitor">Usage monitor</string>
+    <string name="shell_nav_templates">Templates</string>
+    <string name="shell_nav_new_app_behavior">New app behavior</string>
+    <string name="shell_nav_backup_restore">Backup and restore</string>
+    <string name="shell_nav_auto_restore">Auto restore</string>
+    <string name="shell_nav_settings">Settings</string>
+    <string name="shell_nav_help">Help and support</string>
+    <string name="shell_nav_changelog">Changelog</string>
+    <string name="shell_nav_about">About</string>
+    <string name="shell_nav_work_mode">Working mode</string>
+    <string name="shell_nav_reselect_mode">Choose working mode again</string>
+
+    <string name="shell_placeholder">Not connected yet</string>
+    <string name="shell_search">Search</string>
+    <string name="shell_search_hint">Search apps or packages</string>
+    <string name="shell_close">Close</string>
+    <string name="shell_filter">Options</string>
+
+    <string name="shell_status_checking">Checking Shizuku…</string>
+    <string name="shell_status_not_installed">Shizuku is not installed</string>
+    <string name="shell_status_not_running">Shizuku is not running. Start Shizuku first.</string>
+    <string name="shell_status_unsupported">This Shizuku version is not supported (13 or later is required)</string>
+    <string name="shell_status_permission">Shizuku authorization is required</string>
+    <string name="shell_status_permission_denied">Shizuku authorization was denied</string>
+    <string name="shell_status_read_failed">Could not read the Shizuku state</string>
+    <string name="shell_status_connecting">Connecting to the backend…</string>
+    <string name="shell_status_connected">Shizuku is connected</string>
+    <string name="shell_status_backend_failed">The backend could not connect</string>
+    <string name="shell_status_disconnected">The backend is not connected</string>
+    <string name="shell_action_authorize">Authorize</string>
+    <string name="shell_action_retry">Retry</string>
+
+    <string name="shell_apps_loading">Loading apps…</string>
+    <string name="shell_apps_empty">No apps to show</string>
+    <string name="shell_apps_failed">Could not load the app list</string>
+</resources>
