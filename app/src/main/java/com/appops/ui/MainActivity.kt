@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -41,6 +42,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
@@ -345,27 +347,27 @@ private fun ModeScreen(picked: Boolean, onPick: (Boolean) -> Unit, onContinue: (
             Column(Modifier.padding(end = 56.dp)) {
                 Text(
                     stringResource(R.string.mode_shizuku),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium,
                 )
                 Spacer(Modifier.height(10.dp))
                 Text(
                     stringResource(R.string.mode_shizuku_pros),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(20.dp))
                 Text(
                     stringResource(R.string.mode_shizuku_cons),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             RadioButton(
                 selected = picked,
                 onClick = { onPick(!picked) },
-                modifier = Modifier.align(Alignment.CenterEnd).size(48.dp),
+                modifier = Modifier.align(Alignment.CenterEnd).offset(x = 7.dp).size(48.dp),
             )
         }
 
@@ -374,10 +376,14 @@ private fun ModeScreen(picked: Boolean, onPick: (Boolean) -> Unit, onContinue: (
             onClick = onContinue,
             enabled = picked,
             shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.filledTonalButtonColors(
+                disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+            ),
             modifier = Modifier.fillMaxWidth().height(64.dp),
         ) {
             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
-            Spacer(Modifier.size(24.dp))
+            Spacer(Modifier.size(20.dp))
             Text(
                 stringResource(R.string.action_continue),
                 style = MaterialTheme.typography.titleMedium,
