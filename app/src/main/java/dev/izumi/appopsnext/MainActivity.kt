@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     appList = appList,
                     hideSystemApps = settings.hideSystemApps,
                     modeChosen = modeChosen,
-                    onModeChosenChange = ::setModeChosen,
+                    onModeChosenChange = ::updateModeChosen,
                     onHideSystemAppsChange = settingsViewModel::setHideSystemApps,
                     onShizukuAction = diagnosticsViewModel::performShizukuAction,
                     onRetryService = diagnosticsViewModel::retryPrivilegedService,
@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun setModeChosen(chosen: Boolean) {
+    private fun updateModeChosen(chosen: Boolean) {
         modeChosen = chosen
         getSharedPreferences(UI_PREFS, Context.MODE_PRIVATE)
             .edit()
