@@ -15,8 +15,11 @@ import dev.izumi.appopsnext.development.DevelopmentWindowPolicy
 import dev.izumi.appopsnext.monitor.AppOpsMonitorService
 import dev.izumi.appopsnext.presentation.AppOpsApp
 import dev.izumi.appopsnext.presentation.AppOpsTheme
+import dev.izumi.appopsnext.presentation.app_detail.AppDetailViewModel
 import dev.izumi.appopsnext.presentation.app_list.AppListViewModel
 import dev.izumi.appopsnext.presentation.diagnostics.DiagnosticsViewModel
+import dev.izumi.appopsnext.presentation.history.HistoryViewModel
+import dev.izumi.appopsnext.presentation.permissions.PermissionBrowserViewModel
 import dev.izumi.appopsnext.presentation.settings.SettingsViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -25,6 +28,9 @@ class MainActivity : ComponentActivity() {
     private val diagnosticsViewModel: DiagnosticsViewModel by viewModels()
     private val appListViewModel: AppListViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
+    private val appDetailViewModel: AppDetailViewModel by viewModels()
+    private val permissionBrowserViewModel: PermissionBrowserViewModel by viewModels()
+    private val historyViewModel: HistoryViewModel by viewModels()
 
     private var modeChosen by mutableStateOf(false)
 
@@ -47,6 +53,9 @@ class MainActivity : ComponentActivity() {
                     appList = appList,
                     hideSystemApps = settings.hideSystemApps,
                     modeChosen = modeChosen,
+                    appDetailVm = appDetailViewModel,
+                    permissionVm = permissionBrowserViewModel,
+                    historyVm = historyViewModel,
                     onModeChosenChange = ::updateModeChosen,
                     onHideSystemAppsChange = settingsViewModel::setHideSystemApps,
                     onShizukuAction = diagnosticsViewModel::performShizukuAction,
@@ -90,6 +99,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onPause() {
+        historyViewModel.setForeground(false)
+        super.onPause()
+    }
+
     override fun onResume() {
         super.onResume()
         (application as AppOpsNextApplication).apply {
@@ -98,6 +112,8 @@ class MainActivity : ComponentActivity() {
             historyArchiveRecorder.onAppForeground()
         }
         appListViewModel.refreshAfterResume()
+        appDetailViewModel.refreshIfReady()
+        historyViewModel.setForeground(true)
     }
 
     private companion object {

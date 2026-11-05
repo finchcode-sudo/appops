@@ -43,6 +43,11 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.RestorePage
+import androidx.compose.material.icons.filled.Refresh
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.izumi.appopsnext.presentation.app_detail.AppDetailViewModel
+import dev.izumi.appopsnext.presentation.history.HistoryViewModel
+import dev.izumi.appopsnext.presentation.permissions.PermissionBrowserViewModel
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SettingsBackupRestore
@@ -157,6 +162,8 @@ private val NAV_TEXT = listOf(
 
 private val ALL_ENTRIES = NAV_MAIN + NAV_TOOLS
 private const val PAGE_APPS = 0
+private const val PAGE_PERMISSIONS = 1
+private const val PAGE_HISTORY = 2
 
 // ---- 主界面 ----
 
@@ -167,6 +174,9 @@ fun AppOpsApp(
     appList: AppListUiState,
     hideSystemApps: Boolean,
     modeChosen: Boolean,
+    appDetailVm: AppDetailViewModel,
+    permissionVm: PermissionBrowserViewModel,
+    historyVm: HistoryViewModel,
     onModeChosenChange: (Boolean) -> Unit,
     onHideSystemAppsChange: (Boolean) -> Unit,
     onShizukuAction: () -> Unit,
@@ -175,6 +185,8 @@ fun AppOpsApp(
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val permissionState by permissionVm.state.collectAsStateWithLifecycle()
+    val historyState by historyVm.uiState.collectAsStateWithLifecycle()
 
     var shizukuPicked by rememberSaveable { mutableStateOf(false) }
     var page by rememberSaveable { mutableIntStateOf(PAGE_APPS) }
@@ -182,184 +194,286 @@ fun AppOpsApp(
     var menuOpen by rememberSaveable { mutableStateOf(false) }
     var searching by rememberSaveable { mutableStateOf(false) }
     var showFramework by rememberSaveable { mutableStateOf(false) }
+    var detailOpen by rememberSaveable { mutableStateOf(false) }
+    var historyDetail by rememberSaveable { mutableStateOf<String?>(null) }
+    var managingHistory by rememberSaveable { mutableStateOf(false) }
+
+    val searchable = modeChosen && (page == PAGE_APPS || page == PAGE_PERMISSIONS)
+    val overlayOpen = detailOpen ||
+        (page == PAGE_PERMISSIONS && permissionState.operation != null) ||
+        historyDetail != null
 
     fun closeDrawer() {
         scope.launch { drawerState.close() }
     }
 
-    BackHandler(enabled = searching) {
+    fun stopSearch() {
         searching = false
         onSearchQueryChange("")
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { modePanel = !modePanel }
-                        .padding(horizontal = 24.dp, vertical = 20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Icon(
-                        if (modePanel) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                HorizontalDivider()
+    BackHandler(enabled = searching && !overlayOpen) { stopSearch() }
 
-                if (modePanel) {
-                    Text(
-                        stringResource(R.string.shell_nav_work_mode),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 24.dp, top = 20.dp, bottom = 12.dp),
-                    )
-                    NavigationDrawerItem(
-                        label = {
-                            Text(
-                                stringResource(R.string.shell_nav_reselect_mode),
-                                style = MaterialTheme.typography.labelLarge,
-                            )
-                        },
-                        icon = { Icon(Icons.Filled.Settings, null) },
-                        selected = false,
-                        onClick = {
-                            shizukuPicked = false
-                            modePanel = false
-                            onModeChosenChange(false)
-                            closeDrawer()
-                        },
+    Box(Modifier.fillMaxSize()) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    Row(
                         modifier = Modifier
-                            .padding(NavigationDrawerItemDefaults.ItemPadding)
-                            .height(48.dp),
-                    )
-                } else {
-                    Column(Modifier.verticalScroll(rememberScrollState())) {
-                        Spacer(Modifier.height(8.dp))
-                        NAV_MAIN.forEach { e -> DrawerRow(e, page == e.id) { page = e.id; closeDrawer() } }
-                        HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                        NAV_TOOLS.forEach { e -> DrawerRow(e, page == e.id) { page = e.id; closeDrawer() } }
-                        HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                        NAV_TEXT.forEach { res ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(48.dp)
-                                    .clickable { closeDrawer() }
-                                    .padding(horizontal = 24.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
+                            .fillMaxWidth()
+                            .clickable { modePanel = !modePanel }
+                            .padding(horizontal = 24.dp, vertical = 20.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Icon(
+                            if (modePanel) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    HorizontalDivider()
+
+                    if (modePanel) {
+                        Text(
+                            stringResource(R.string.shell_nav_work_mode),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 24.dp, top = 20.dp, bottom = 12.dp),
+                        )
+                        NavigationDrawerItem(
+                            label = {
                                 Text(
-                                    stringResource(res),
+                                    stringResource(R.string.shell_nav_reselect_mode),
                                     style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
+                            },
+                            icon = { Icon(Icons.Filled.Settings, null) },
+                            selected = false,
+                            onClick = {
+                                shizukuPicked = false
+                                modePanel = false
+                                onModeChosenChange(false)
+                                closeDrawer()
+                            },
+                            modifier = Modifier
+                                .padding(NavigationDrawerItemDefaults.ItemPadding)
+                                .height(48.dp),
+                        )
+                    } else {
+                        Column(Modifier.verticalScroll(rememberScrollState())) {
+                            Spacer(Modifier.height(8.dp))
+                            NAV_MAIN.forEach { e ->
+                                DrawerRow(e, page == e.id) {
+                                    if (page != e.id) stopSearch()
+                                    page = e.id
+                                    closeDrawer()
+                                }
+                            }
+                            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                            NAV_TOOLS.forEach { e ->
+                                DrawerRow(e, page == e.id) {
+                                    if (page != e.id) stopSearch()
+                                    page = e.id
+                                    closeDrawer()
+                                }
+                            }
+                            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                            NAV_TEXT.forEach { res ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(48.dp)
+                                        .clickable { closeDrawer() }
+                                        .padding(horizontal = 24.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        stringResource(res),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
-        },
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        if (searching && modeChosen && page == PAGE_APPS) {
-                            TextField(
-                                value = appList.searchQuery,
-                                onValueChange = onSearchQueryChange,
-                                singleLine = true,
-                                placeholder = { Text(stringResource(R.string.shell_search_hint)) },
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                ),
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        } else {
-                            Text(stringResource(R.string.app_name))
-                        }
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Filled.Menu, contentDescription = null)
-                        }
-                    },
-                    actions = {
-                        if (searching && modeChosen && page == PAGE_APPS) {
-                            IconButton(onClick = {
-                                searching = false
-                                onSearchQueryChange("")
-                            }) {
-                                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.shell_close))
-                            }
-                        } else {
-                            IconButton(onClick = {
-                                if (modeChosen && page == PAGE_APPS) searching = true
-                            }) {
-                                Icon(Icons.Filled.Search, contentDescription = stringResource(R.string.shell_search))
-                            }
-                        }
-                        Box {
-                            IconButton(onClick = { menuOpen = true }) {
-                                Icon(Icons.Filled.Tune, contentDescription = stringResource(R.string.shell_filter))
-                            }
-                            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                                Text(
-                                    stringResource(R.string.shell_menu_options),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.shell_menu_show_system)) },
-                                    trailingIcon = { Checkbox(checked = !hideSystemApps, onCheckedChange = null) },
-                                    onClick = { onHideSystemAppsChange(!hideSystemApps) },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.shell_menu_show_framework)) },
-                                    trailingIcon = { Checkbox(checked = showFramework, onCheckedChange = null) },
-                                    onClick = { showFramework = !showFramework },
-                                )
-                            }
-                        }
-                    },
-                )
             },
-        ) { padding ->
-            Box(Modifier.fillMaxSize().padding(padding)) {
-                if (!modeChosen) {
-                    ModeScreen(
-                        picked = shizukuPicked,
-                        onPick = { shizukuPicked = it },
-                        onContinue = { onModeChosenChange(true) },
+        ) {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            if (searching && searchable) {
+                                SearchField(
+                                    value = appList.searchQuery,
+                                    onValueChange = onSearchQueryChange,
+                                    hint = stringResource(R.string.shell_search_hint),
+                                )
+                            } else {
+                                Column {
+                                    Text(stringResource(R.string.app_name))
+                                    if (modeChosen) {
+                                        val owner = ownerName(appList)
+                                        if (owner.isNotEmpty()) {
+                                            Text(
+                                                owner,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                Icon(Icons.Filled.Menu, contentDescription = null)
+                            }
+                        },
+                        actions = {
+                            if (modeChosen && page == PAGE_HISTORY) {
+                                IconButton(onClick = historyVm::refresh) {
+                                    Icon(
+                                        Icons.Filled.Refresh,
+                                        contentDescription = stringResource(R.string.shell_refresh),
+                                    )
+                                }
+                            }
+                            if (searchable) {
+                                if (searching) {
+                                    IconButton(onClick = { stopSearch() }) {
+                                        Icon(
+                                            Icons.Filled.Close,
+                                            contentDescription = stringResource(R.string.shell_close),
+                                        )
+                                    }
+                                } else {
+                                    IconButton(onClick = { searching = true }) {
+                                        Icon(
+                                            Icons.Filled.Search,
+                                            contentDescription = stringResource(R.string.shell_search),
+                                        )
+                                    }
+                                }
+                            }
+                            Box {
+                                IconButton(onClick = { menuOpen = true }) {
+                                    Icon(
+                                        Icons.Filled.Tune,
+                                        contentDescription = stringResource(R.string.shell_filter),
+                                    )
+                                }
+                                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                                    Text(
+                                        stringResource(R.string.shell_menu_options),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.shell_menu_show_system)) },
+                                        trailingIcon = { Checkbox(checked = !hideSystemApps, onCheckedChange = null) },
+                                        onClick = { onHideSystemAppsChange(!hideSystemApps) },
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.shell_menu_show_framework)) },
+                                        trailingIcon = { Checkbox(checked = showFramework, onCheckedChange = null) },
+                                        onClick = { showFramework = !showFramework },
+                                    )
+                                    if (modeChosen && page == PAGE_HISTORY) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.history_manage_permissions)) },
+                                            onClick = {
+                                                menuOpen = false
+                                                managingHistory = true
+                                            },
+                                        )
+                                    }
+                                }
+                            }
+                        },
                     )
-                } else {
-                    Column(Modifier.fillMaxSize()) {
-                        ConnectionBanner(diagnostics, onShizukuAction, onRetryService)
-                        if (page == PAGE_APPS) {
-                            AppListPage(appList, showFramework)
-                        } else {
-                            PlaceholderPage(ALL_ENTRIES.firstOrNull { it.id == page }?.label)
+                },
+            ) { padding ->
+                Box(Modifier.fillMaxSize().padding(padding)) {
+                    if (!modeChosen) {
+                        ModeScreen(
+                            picked = shizukuPicked,
+                            onPick = { shizukuPicked = it },
+                            onContinue = { onModeChosenChange(true) },
+                        )
+                    } else {
+                        Column(Modifier.fillMaxSize()) {
+                            ConnectionBanner(diagnostics, onShizukuAction, onRetryService)
+                            when (page) {
+                                PAGE_APPS -> AppListPage(appList, showFramework) { app ->
+                                    appDetailVm.selectApp(app)
+                                    detailOpen = true
+                                }
+                                PAGE_PERMISSIONS -> PermissionListPage(
+                                    query = appList.searchQuery,
+                                    onOpen = { permissionVm.select(it) },
+                                )
+                                PAGE_HISTORY -> HistoryPage(historyVm) { historyDetail = it }
+                                else -> PlaceholderPage(ALL_ENTRIES.firstOrNull { it.id == page }?.label)
+                            }
                         }
                     }
                 }
             }
         }
+
+        if (modeChosen) {
+            if (detailOpen) {
+                Surface(Modifier.fillMaxSize()) {
+                    AppDetailPage(appDetailVm) { detailOpen = false }
+                }
+            } else if (page == PAGE_PERMISSIONS && permissionState.operation != null) {
+                Surface(Modifier.fillMaxSize()) {
+                    PermissionAppsPage(
+                        vm = permissionVm,
+                        appList = appList,
+                        onSearchQueryChange = onSearchQueryChange,
+                        onBack = { permissionVm.select(null) },
+                    )
+                }
+            } else {
+                val opened = historyDetail
+                if (opened != null) {
+                    Surface(Modifier.fillMaxSize()) {
+                        HistoryDetailPage(historyVm, opened) { historyDetail = null }
+                    }
+                }
+            }
+        }
     }
+
+    if (managingHistory) {
+        HistoryPermissionsDialog(
+            selected = historyState.permissions.map { it.permission.shellOperationName },
+            onApply = {
+                historyVm.setPermissions(it)
+                managingHistory = false
+            },
+            onDismiss = { managingHistory = false },
+        )
+    }
+}
+
+/** 顶栏副标题：当前查看的用户；主用户显示“机主”。 */
+@Composable
+private fun ownerName(appList: AppListUiState): String {
+    val selected = appList.selectedUserId
+    if (selected == null && appList.currentUserId == 0) return stringResource(R.string.shell_owner)
+    val id = selected ?: appList.currentUserId
+    return appList.users.firstOrNull { it.id == id }?.name.orEmpty()
 }
 
 @Composable
@@ -558,7 +672,11 @@ private fun ConnectionBanner(
 private fun InstalledApp.isFrameworkApp(): Boolean = isSystemApp && uid % 100000 < 10000
 
 @Composable
-private fun AppListPage(state: AppListUiState, showFramework: Boolean) {
+private fun AppListPage(
+    state: AppListUiState,
+    showFramework: Boolean,
+    onOpen: (InstalledApp) -> Unit,
+) {
     val apps = if (showFramework) state.visibleApps
     else state.visibleApps.filterNot { it.isFrameworkApp() }
 
@@ -571,6 +689,7 @@ private fun AppListPage(state: AppListUiState, showFramework: Boolean) {
                 Row(
                     Modifier
                         .fillMaxWidth()
+                        .clickable { onOpen(app) }
                         .padding(horizontal = 16.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -589,6 +708,13 @@ private fun AppListPage(state: AppListUiState, showFramework: Boolean) {
                             maxLines = 1,
                         )
                     }
+                    if (app.isSystemApp) {
+                        Text(
+                            stringResource(R.string.shell_system_app),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
@@ -596,7 +722,7 @@ private fun AppListPage(state: AppListUiState, showFramework: Boolean) {
 }
 
 @Composable
-private fun CenterMessage(@StringRes text: Int, progress: Boolean = false) {
+internal fun CenterMessage(@StringRes text: Int, progress: Boolean = false) {
     Column(
         Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -631,7 +757,7 @@ private fun PlaceholderPage(@StringRes title: Int?) {
 // ---- 应用图标 ----
 
 @Composable
-private fun AppIcon(packageName: String, label: String, userId: Int?, size: Dp = 44.dp) {
+internal fun AppIcon(packageName: String, label: String, userId: Int?, size: Dp = 44.dp) {
     val context = LocalContext.current
     val sizePx = with(LocalDensity.current) { size.roundToPx() }
     val cacheKey = if (userId == null) packageName else "$userId:$packageName"

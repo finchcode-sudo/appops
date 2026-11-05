@@ -50,4 +50,12 @@
     <string name="shell_apps_loading">正在加载应用…</string>
     <string name="shell_apps_empty">没有可显示的应用</string>
     <string name="shell_apps_failed">无法加载应用列表</string>
+    <string name="shell_all">全部</string>
+    <string name="shell_owner">机主</string>
+    <string name="shell_system_app">系统应用</string>
+    <string name="shell_refresh">刷新</string>
+    <string name="shell_history_window">在过去的 24 小时内</string>
+    <string name="shell_history_summary">%1$d 个应用使用了 %2$d 次敏感权限</string>
+    <string name="shell_history_count">%1$d 次</string>
+    <string name="shell_history_denied">被拒绝 %1$d 次</string>
 </resources>

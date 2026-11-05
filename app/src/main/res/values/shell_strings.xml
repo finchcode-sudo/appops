@@ -50,4 +50,12 @@
     <string name="shell_apps_loading">Loading apps…</string>
     <string name="shell_apps_empty">No apps to show</string>
     <string name="shell_apps_failed">Could not load the app list</string>
+    <string name="shell_all">All</string>
+    <string name="shell_owner">Owner</string>
+    <string name="shell_system_app">System app</string>
+    <string name="shell_refresh">Refresh</string>
+    <string name="shell_history_window">In the last 24 hours</string>
+    <string name="shell_history_summary">%1$d apps used sensitive permissions %2$d times</string>
+    <string name="shell_history_count">%1$d times</string>
+    <string name="shell_history_denied">%1$d denied</string>
 </resources>
