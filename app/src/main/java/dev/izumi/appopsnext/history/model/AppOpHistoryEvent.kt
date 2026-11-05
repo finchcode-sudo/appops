@@ -28,10 +28,16 @@ data class HistoryPermission(
 
 object HistoryPermissionDefaults {
     val permissions = listOf(
-        HistoryPermission("CAMERA"),
-        HistoryPermission("RECORD_AUDIO"),
         HistoryPermission("FINE_LOCATION"),
         HistoryPermission("COARSE_LOCATION"),
+        HistoryPermission("CAMERA"),
+        HistoryPermission("RECORD_AUDIO"),
+        HistoryPermission("READ_CONTACTS"),
+        HistoryPermission("READ_PHONE_STATE"),
+        HistoryPermission("READ_CALENDAR"),
+        HistoryPermission("READ_SMS"),
+        HistoryPermission("READ_CLIPBOARD"),
+        HistoryPermission("READ_DEVICE_IDENTIFIERS"),
     )
 }
 
