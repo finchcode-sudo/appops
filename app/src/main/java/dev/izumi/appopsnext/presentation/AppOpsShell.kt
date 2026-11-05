@@ -177,6 +177,10 @@ fun AppOpsApp(
     appDetailVm: AppDetailViewModel,
     permissionVm: PermissionBrowserViewModel,
     historyVm: HistoryViewModel,
+    settingsVm: dev.izumi.appopsnext.presentation.settings.SettingsViewModel,
+    templatesVm: dev.izumi.appopsnext.presentation.templates.TemplatesViewModel,
+    guardVm: dev.izumi.appopsnext.presentation.experimental.GuardViewModel,
+    monitorVm: dev.izumi.appopsnext.presentation.experimental.ExperimentalViewModel,
     onModeChosenChange: (Boolean) -> Unit,
     onHideSystemAppsChange: (Boolean) -> Unit,
     onShizukuAction: () -> Unit,
@@ -422,6 +426,13 @@ fun AppOpsApp(
                                     onOpen = { permissionVm.select(it) },
                                 )
                                 PAGE_HISTORY -> HistoryPage(historyVm) { historyDetail = it }
+                                3 -> ClipboardMonitorPage()
+                                4 -> UsageMonitorPage(monitorVm)
+                                5 -> TemplatesPage(templatesVm)
+                                6 -> NewAppBehaviorPage(templatesVm)
+                                7 -> BackupPage(settingsVm)
+                                8 -> AutoRestorePage(guardVm)
+                                9 -> SettingsPage(settingsVm)
                                 else -> PlaceholderPage(ALL_ENTRIES.firstOrNull { it.id == page }?.label)
                             }
                         }

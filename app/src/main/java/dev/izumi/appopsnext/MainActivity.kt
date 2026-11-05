@@ -31,6 +31,9 @@ class MainActivity : ComponentActivity() {
     private val appDetailViewModel: AppDetailViewModel by viewModels()
     private val permissionBrowserViewModel: PermissionBrowserViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels()
+    private val templatesViewModel: dev.izumi.appopsnext.presentation.templates.TemplatesViewModel by viewModels()
+    private val guardViewModel: dev.izumi.appopsnext.presentation.experimental.GuardViewModel by viewModels()
+    private val monitorViewModel: dev.izumi.appopsnext.presentation.experimental.ExperimentalViewModel by viewModels()
 
     private var modeChosen by mutableStateOf(false)
 
@@ -56,6 +59,10 @@ class MainActivity : ComponentActivity() {
                     appDetailVm = appDetailViewModel,
                     permissionVm = permissionBrowserViewModel,
                     historyVm = historyViewModel,
+                    settingsVm = settingsViewModel,
+                    templatesVm = templatesViewModel,
+                    guardVm = guardViewModel,
+                    monitorVm = monitorViewModel,
                     onModeChosenChange = ::updateModeChosen,
                     onHideSystemAppsChange = settingsViewModel::setHideSystemApps,
                     onShizukuAction = diagnosticsViewModel::performShizukuAction,
