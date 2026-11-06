@@ -44,6 +44,8 @@ import dev.izumi.appopsnext.presentation.templates.TemplatesViewModel
 import dev.izumi.appopsnext.settings.AppLanguage
 import dev.izumi.appopsnext.settings.AppTheme
 
+internal val LocalRowStart = androidx.compose.runtime.compositionLocalOf { 16.dp }
+
 @Composable
 private fun SectionTitle(text: String) {
     Text(
@@ -59,7 +61,7 @@ private fun SwitchRow(title: String, summary: String?, checked: Boolean, enabled
     Row(
         Modifier.fillMaxWidth()
             .clickable(enabled = enabled) { onChange(!checked) }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(start = LocalRowStart.current, end = 16.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
@@ -74,7 +76,7 @@ private fun SwitchRow(title: String, summary: String?, checked: Boolean, enabled
 
 @Composable
 private fun ValueRow(title: String, value: String, onClick: () -> Unit) {
-    Column(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 12.dp)) {
+    Column(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(start = LocalRowStart.current, end = 16.dp, top = 12.dp, bottom = 12.dp)) {
         Text(title, style = MaterialTheme.typography.bodyLarge)
         Text(value, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -362,33 +364,117 @@ internal fun TemplatesPage(vm: TemplatesViewModel) {
 
 // ---- 使用情况监视器 ----
 
+private val MONITOR_OPERATIONS = setOf("CAMERA", "RECORD_AUDIO", "FINE_LOCATION", "COARSE_LOCATION")
+
 @Composable
-internal fun UsageMonitorPage(vm: ExperimentalViewModel) {
+internal fun UsageMonitorPage(
+    vm: ExperimentalViewModel,
+    appList: dev.izumi.appopsnext.presentation.app_list.AppListUiState,
+    onBack: () -> Unit,
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember { context.getSharedPreferences("app_ops_ui", android.content.Context.MODE_PRIVATE) }
     val state by vm.uiState.collectAsStateWithLifecycle()
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        SwitchRow(
-            stringResource(R.string.tp_monitor_enable),
-            stringResource(R.string.tp_monitor_summary),
-            state.monitorEnabled,
-            enabled = !state.monitorBusy,
-        ) { vm.setMonitorEnabled(it) }
-        state.monitorFailure?.let {
-            Text(it, Modifier.padding(16.dp), color = MaterialTheme.colorScheme.error)
-        }
-        SectionTitle(stringResource(R.string.tp_monitor_targets, state.targetCount))
-        state.targets.forEach { t ->
-            Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-                Text(t.packageName, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    t.operationNames.joinToString(", ") { it },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+    var excluded by remember { mutableStateOf(prefs.getStringSet("monitor_excluded", emptySet()).orEmpty().toSet()) }
+    var excludeSystem by remember { mutableStateOf(prefs.getBoolean("monitor_exclude_system", false)) }
+    var picking by remember { mutableStateOf(false) }
+
+    fun sync(excl: Set<String>, system: Boolean) {
+        val targets = appList.allApps
+            .filter { it.userId == null && it.packageName != context.packageName }
+            .filter { it.packageName !in excl && !(system && it.isSystemApp) }
+            .map { dev.izumi.appopsnext.monitor.MonitorTarget(it.packageName, MONITOR_OPERATIONS) }
+            .distinctBy { it.packageName }
+        vm.replaceTargets(targets)
+    }
+
+    androidx.activity.compose.BackHandler { if (picking) picking = false else onBack() }
+
+    if (picking) {
+        MonitorExcludedPage(
+            appList.allApps.filter { it.userId == null && it.packageName != context.packageName },
+            excluded,
+            onChange = {
+                excluded = it
+                prefs.edit().putStringSet("monitor_excluded", it).apply()
+                if (state.monitorEnabled) sync(it, excludeSystem)
+            },
+            onBack = { picking = false },
+        )
+        return
+    }
+
+    androidx.compose.runtime.CompositionLocalProvider(LocalRowStart provides 72.dp) {
+        Column(Modifier.fillMaxSize()) {
+            ShellTopBar(title = stringResource(R.string.shell_nav_usage_monitor), onBack = onBack)
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                SwitchRow(
+                    stringResource(R.string.tp_monitor_enable),
+                    stringResource(R.string.tp_monitor_summary),
+                    state.monitorEnabled,
+                    enabled = !state.monitorBusy,
+                ) { on ->
+                    if (on) sync(excluded, excludeSystem)
+                    vm.setMonitorEnabled(on)
+                }
+                state.monitorFailure?.let {
+                    Text(it, Modifier.padding(start = 72.dp, end = 16.dp, bottom = 8.dp), color = MaterialTheme.colorScheme.error)
+                }
+                HorizontalDivider()
+                ValueRow(stringResource(R.string.tp_clip_excluded), stringResource(R.string.tp_clip_excluded_summary)) {
+                    picking = true
+                }
+                SwitchRow(
+                    stringResource(R.string.tp_clip_exclude_system),
+                    stringResource(R.string.tp_clip_exclude_system_summary),
+                    excludeSystem,
+                ) {
+                    excludeSystem = it
+                    prefs.edit().putBoolean("monitor_exclude_system", it).apply()
+                    if (state.monitorEnabled) sync(excluded, it)
+                }
             }
-            HorizontalDivider()
         }
-        if (state.targets.isEmpty()) {
-            Text(stringResource(R.string.tp_monitor_empty), Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+private fun MonitorExcludedPage(
+    apps: List<dev.izumi.appopsnext.apps.model.InstalledApp>,
+    excluded: Set<String>,
+    onChange: (Set<String>) -> Unit,
+    onBack: () -> Unit,
+) {
+    var query by remember { mutableStateOf("") }
+    val shown = apps.filter {
+        query.isBlank() || it.label.contains(query, true) || it.packageName.contains(query, true)
+    }
+    Column(Modifier.fillMaxSize()) {
+        ShellTopBar(title = stringResource(R.string.tp_clip_excluded), onBack = onBack)
+        SearchField(value = query, onValueChange = { query = it }, hint = stringResource(R.string.shell_search_hint))
+        LazyColumn(Modifier.weight(1f)) {
+            items(shown, key = { it.packageName }) { app ->
+                val on = app.packageName in excluded
+                Row(
+                    Modifier.fillMaxWidth()
+                        .clickable { onChange(if (on) excluded - app.packageName else excluded + app.packageName) }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    AppIcon(app.packageName, app.label, app.userId)
+                    Spacer(Modifier.width(16.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(app.label, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+                        Text(
+                            app.packageName,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                        )
+                    }
+                    androidx.compose.material3.Checkbox(checked = on, onCheckedChange = null)
+                }
+            }
         }
     }
 }
@@ -417,6 +503,7 @@ internal fun ClipboardMonitorPage(onBack: () -> Unit) {
     var posDialog by remember { mutableStateOf(false) }
     var timeDialog by remember { mutableStateOf(false) }
     val dim = if (canOverlay) 1f else 0.38f
+    androidx.compose.runtime.CompositionLocalProvider(LocalRowStart provides 72.dp) {
     Column(Modifier.fillMaxSize()) {
         ShellTopBar(title = stringResource(R.string.shell_nav_clipboard_monitor), onBack = onBack)
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
@@ -444,13 +531,13 @@ internal fun ClipboardMonitorPage(onBack: () -> Unit) {
                 ) { enabled = it }
                 Text(
                     stringResource(R.string.tp_clip_explain1),
-                    Modifier.padding(16.dp),
+                    Modifier.padding(start = 72.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = dim),
                 )
                 Text(
                     stringResource(R.string.tp_clip_explain2),
-                    Modifier.padding(horizontal = 16.dp),
+                    Modifier.padding(start = 72.dp, end = 16.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = dim),
                 )
@@ -474,10 +561,11 @@ internal fun ClipboardMonitorPage(onBack: () -> Unit) {
             }
             Text(
                 stringResource(R.string.tp_clip_notice),
-                Modifier.padding(16.dp),
+                Modifier.padding(start = 72.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
                 color = MaterialTheme.colorScheme.error,
             )
         }
+    }
     }
     if (posDialog) {
         ChoiceDialog(

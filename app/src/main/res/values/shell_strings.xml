@@ -99,8 +99,8 @@
     <string name="tp_tpl_empty">No templates yet.</string>
     <string name="tp_tpl_no_rules">This template has no rules.</string>
     <string name="tp_tpl_rule_count">%1$d rules</string>
-    <string name="tp_monitor_enable">Usage monitor</string>
-    <string name="tp_monitor_summary">Watch selected apps in the background</string>
+    <string name="tp_monitor_enable">Enable usage monitor</string>
+    <string name="tp_monitor_summary">Get a prompt when an app uses location, camera or microphone</string>
     <string name="tp_monitor_targets">Monitored apps (%1$d)</string>
     <string name="tp_monitor_empty">No apps are monitored.</string>
     <string name="tp_clip_need_overlay">Requires \"Display over other apps\"</string>

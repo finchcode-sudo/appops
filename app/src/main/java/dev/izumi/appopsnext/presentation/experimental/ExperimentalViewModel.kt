@@ -220,6 +220,10 @@ class ExperimentalViewModel(
         viewModelScope.launch { settingsRepository.setMonitorHeadsUp(enabled) }
     }
 
+    fun replaceTargets(targets: List<MonitorTarget>) {
+        viewModelScope.launch { targetsRepository.replace(targets, null) }
+    }
+
     fun setOperations(packageName: String, operationNames: Set<String>) {
         viewModelScope.launch {
             targetsRepository.setOperations(packageName, operationNames)

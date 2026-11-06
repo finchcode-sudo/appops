@@ -99,8 +99,8 @@
     <string name="tp_tpl_empty">还没有模版。</string>
     <string name="tp_tpl_no_rules">此模版没有规则。</string>
     <string name="tp_tpl_rule_count">%1$d 条规则</string>
-    <string name="tp_monitor_enable">使用情况监视器</string>
-    <string name="tp_monitor_summary">在后台监视所选应用</string>
+    <string name="tp_monitor_enable">启用使用情况监视器</string>
+    <string name="tp_monitor_summary">当应用使用位置、相机或麦克风时收到提示</string>
     <string name="tp_monitor_targets">监视的应用（%1$d）</string>
     <string name="tp_monitor_empty">没有监视任何应用。</string>
     <string name="tp_clip_need_overlay">需要\"显示在其他应用的上层\"</string>

@@ -427,7 +427,7 @@ fun AppOpsApp(
                                 )
                                 PAGE_HISTORY -> HistoryPage(historyVm) { historyDetail = it }
                                 3 -> Unit
-                                4 -> UsageMonitorPage(monitorVm)
+                                4 -> Unit
                                 5 -> TemplatesPage(templatesVm)
                                 6 -> NewAppBehaviorPage(templatesVm)
                                 7 -> BackupPage(settingsVm)
@@ -445,6 +445,10 @@ fun AppOpsApp(
             if (detailOpen) {
                 Surface(Modifier.fillMaxSize()) {
                     AppDetailPage(appDetailVm) { detailOpen = false }
+                }
+            } else if (page == 4) {
+                Surface(Modifier.fillMaxSize()) {
+                    UsageMonitorPage(monitorVm, appList) { page = PAGE_APPS }
                 }
             } else if (page == 3) {
                 Surface(Modifier.fillMaxSize()) {
