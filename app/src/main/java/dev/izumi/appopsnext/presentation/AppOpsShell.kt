@@ -52,6 +52,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -186,6 +187,7 @@ fun AppOpsApp(
     onShizukuAction: () -> Unit,
     onRetryService: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
+    onSelectUser: (Int?) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -228,23 +230,70 @@ fun AppOpsApp(
                             .fillMaxWidth()
                             .clickable { modePanel = !modePanel }
                             .padding(horizontal = 24.dp, vertical = 20.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.Top,
                     ) {
-                        Text(
-                            stringResource(R.string.app_name),
-                            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.weight(1f),
-                        )
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.app_name),
+                                style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            if (modeChosen) {
+                                val owner = ownerName(appList)
+                                if (owner.isNotEmpty()) {
+                                    Text(
+                                        owner,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                                Text(
+                                    stringResource(R.string.shell_mode_shizuku_label),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
                         Icon(
                             if (modePanel) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 6.dp),
                         )
                     }
                     HorizontalDivider()
 
                     if (modePanel) {
+                        if (appList.users.isNotEmpty()) {
+                            Text(
+                                stringResource(R.string.shell_drawer_users),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(start = 24.dp, top = 20.dp, bottom = 12.dp),
+                            )
+                            val activeId = appList.selectedUserId ?: appList.currentUserId
+                            appList.users.forEach { user ->
+                                NavigationDrawerItem(
+                                    label = {
+                                        Text(
+                                            if (user.id == 0) stringResource(R.string.shell_owner) else user.name,
+                                            style = MaterialTheme.typography.labelLarge,
+                                        )
+                                    },
+                                    icon = { Icon(Icons.Outlined.AccountCircle, null) },
+                                    selected = user.id == activeId,
+                                    onClick = {
+                                        onSelectUser(user.id.takeIf { it != appList.currentUserId })
+                                        modePanel = false
+                                        closeDrawer()
+                                    },
+                                    modifier = Modifier
+                                        .padding(NavigationDrawerItemDefaults.ItemPadding)
+                                        .height(48.dp),
+                                )
+                            }
+                            HorizontalDivider(Modifier.padding(top = 8.dp))
+                        }
                         Text(
                             stringResource(R.string.shell_nav_work_mode),
                             style = MaterialTheme.typography.titleSmall,

@@ -130,4 +130,6 @@
     <string name="tp_hist_line_allowed">%1$s · %2$s曾允许</string>
     <string name="tp_hist_line_denied">%1$s · 被拒绝 %2$d 次</string>
     <string name="tp_runtime_denied_hint">该应用尚未获得此运行时权限，系统不接受“允许”。请先在系统设置里授予权限，再重试。</string>
+    <string name="shell_mode_shizuku_label">Shizuku 模式</string>
+    <string name="shell_drawer_users">用户</string>
 </resources>

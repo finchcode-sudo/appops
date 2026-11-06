@@ -68,6 +68,7 @@ class MainActivity : ComponentActivity() {
                     onShizukuAction = diagnosticsViewModel::performShizukuAction,
                     onRetryService = diagnosticsViewModel::retryPrivilegedService,
                     onSearchQueryChange = appListViewModel::updateSearchQuery,
+                    onSelectUser = appListViewModel::selectUser,
                 )
             }
         }
