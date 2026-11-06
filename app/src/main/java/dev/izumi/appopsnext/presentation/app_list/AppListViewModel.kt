@@ -85,6 +85,13 @@ class AppListViewModel(
     )
 
     init {
+        // Show the list saved by the last run at once; the fresh load replaces it.
+        viewModelScope.launch {
+            val saved = repository.loadCachedApps()
+            if (saved != null && installedApps.value.isEmpty() && userApps.selectedUserId.value == null) {
+                installedApps.value = saved
+            }
+        }
         load(forceRefresh = true, holdIndicator = false)
         // Other users are listed by the privileged backend, so the picker
         // appears once it connects.
