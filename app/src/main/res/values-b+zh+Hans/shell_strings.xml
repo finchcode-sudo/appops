@@ -103,7 +103,20 @@
     <string name="tp_monitor_summary">在后台监视所选应用</string>
     <string name="tp_monitor_targets">监视的应用（%1$d）</string>
     <string name="tp_monitor_empty">没有监视任何应用。</string>
-    <string name="tp_clip_enable">剪贴板监视器</string>
-    <string name="tp_clip_overlay">访问剪贴板时显示悬浮提示</string>
-    <string name="tp_clip_notice">暂未实现：这些开关不会生效。</string>
+    <string name="tp_clip_need_overlay">需要\"显示在其他应用的上层\"</string>
+    <string name="tp_clip_need_overlay_summary">要显示可交互的窗口，此权限是必须的\n点按打开系统的权限页面</string>
+    <string name="tp_clip_enable">启用剪贴板监视器</string>
+    <string name="tp_clip_enable_summary">当应用访问剪贴板时收到提示</string>
+    <string name="tp_clip_explain1">如果您禁止应用使用剪贴板，则授予临时访问权限的\"允许按钮\"将显示在提示窗口中。</string>
+    <string name="tp_clip_explain2">注意，您在尝试复制或粘贴时也将收到提示（由您或应用进行的剪贴板访问在技术上相同）。</string>
+    <string name="tp_clip_position">提示窗口位置</string>
+    <string name="tp_clip_top">屏幕上方</string>
+    <string name="tp_clip_bottom">屏幕下方</string>
+    <string name="tp_clip_timeout">临时访问时限</string>
+    <string name="tp_clip_seconds">%1$d 秒</string>
+    <string name="tp_clip_excluded">排除的应用</string>
+    <string name="tp_clip_excluded_summary">选择不需要提示的应用</string>
+    <string name="tp_clip_exclude_system">排除系统应用</string>
+    <string name="tp_clip_exclude_system_summary">排除所有系统应用，无论单个选项如何</string>
+    <string name="tp_clip_notice">暂未实现：这些设置不会生效。</string>
 </resources>

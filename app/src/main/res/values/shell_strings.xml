@@ -103,7 +103,20 @@
     <string name="tp_monitor_summary">Watch selected apps in the background</string>
     <string name="tp_monitor_targets">Monitored apps (%1$d)</string>
     <string name="tp_monitor_empty">No apps are monitored.</string>
-    <string name="tp_clip_enable">Clipboard monitor</string>
-    <string name="tp_clip_overlay">Show overlay on clipboard access</string>
-    <string name="tp_clip_notice">Not available yet: these switches have no effect.</string>
+    <string name="tp_clip_need_overlay">Requires \"Display over other apps\"</string>
+    <string name="tp_clip_need_overlay_summary">This permission is required to show interactive windows\nTap to open the system permission page</string>
+    <string name="tp_clip_enable">Enable clipboard monitor</string>
+    <string name="tp_clip_enable_summary">Get a prompt when an app accesses the clipboard</string>
+    <string name="tp_clip_explain1">If you deny an app clipboard access, an \"Allow\" button for temporary access is shown in the prompt.</string>
+    <string name="tp_clip_explain2">Note: you also get a prompt when you copy or paste yourself (clipboard access by you or by an app is technically the same).</string>
+    <string name="tp_clip_position">Prompt position</string>
+    <string name="tp_clip_top">Top of screen</string>
+    <string name="tp_clip_bottom">Bottom of screen</string>
+    <string name="tp_clip_timeout">Temporary access duration</string>
+    <string name="tp_clip_seconds">%1$d s</string>
+    <string name="tp_clip_excluded">Excluded apps</string>
+    <string name="tp_clip_excluded_summary">Choose apps that need no prompt</string>
+    <string name="tp_clip_exclude_system">Exclude system apps</string>
+    <string name="tp_clip_exclude_system_summary">Exclude all system apps, regardless of individual choices</string>
+    <string name="tp_clip_notice">Not available yet: these settings have no effect.</string>
 </resources>

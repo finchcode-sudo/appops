@@ -18,6 +18,8 @@
         <package android:name="moe.shizuku.privileged.api" />
     </queries>
 
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <application
         android:name=".AppOpsNextApplication"
         android:allowBackup="true"

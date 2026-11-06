@@ -426,7 +426,7 @@ fun AppOpsApp(
                                     onOpen = { permissionVm.select(it) },
                                 )
                                 PAGE_HISTORY -> HistoryPage(historyVm) { historyDetail = it }
-                                3 -> ClipboardMonitorPage()
+                                3 -> Unit
                                 4 -> UsageMonitorPage(monitorVm)
                                 5 -> TemplatesPage(templatesVm)
                                 6 -> NewAppBehaviorPage(templatesVm)
@@ -445,6 +445,10 @@ fun AppOpsApp(
             if (detailOpen) {
                 Surface(Modifier.fillMaxSize()) {
                     AppDetailPage(appDetailVm) { detailOpen = false }
+                }
+            } else if (page == 3) {
+                Surface(Modifier.fillMaxSize()) {
+                    ClipboardMonitorPage { page = PAGE_APPS }
                 }
             } else if (page == PAGE_PERMISSIONS && permissionState.operation != null) {
                 Surface(Modifier.fillMaxSize()) {

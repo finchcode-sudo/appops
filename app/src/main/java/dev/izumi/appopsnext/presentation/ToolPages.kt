@@ -396,17 +396,105 @@ internal fun UsageMonitorPage(vm: ExperimentalViewModel) {
 // ---- 剪贴板监视器（仅界面，后端没有此功能） ----
 
 @Composable
-internal fun ClipboardMonitorPage() {
+internal fun ClipboardMonitorPage(onBack: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    androidx.activity.compose.BackHandler(onBack = onBack)
+    var canOverlay by remember { mutableStateOf(android.provider.Settings.canDrawOverlays(context)) }
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                canOverlay = android.provider.Settings.canDrawOverlays(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     var enabled by remember { mutableStateOf(false) }
-    var overlay by remember { mutableStateOf(false) }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        SwitchRow(stringResource(R.string.tp_clip_enable), null, enabled) { enabled = it }
-        SwitchRow(stringResource(R.string.tp_clip_overlay), null, overlay) { overlay = it }
-        Spacer(Modifier.height(12.dp))
-        Text(
-            stringResource(R.string.tp_clip_notice),
-            Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+    var atTop by remember { mutableStateOf(true) }
+    var seconds by remember { mutableStateOf(5) }
+    var excludeSystem by remember { mutableStateOf(false) }
+    var posDialog by remember { mutableStateOf(false) }
+    var timeDialog by remember { mutableStateOf(false) }
+    val dim = if (canOverlay) 1f else 0.38f
+    Column(Modifier.fillMaxSize()) {
+        ShellTopBar(title = stringResource(R.string.shell_nav_clipboard_monitor), onBack = onBack)
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+            ValueRow(
+                stringResource(R.string.tp_clip_need_overlay),
+                stringResource(R.string.tp_clip_need_overlay_summary),
+            ) {
+                context.startActivity(
+                    android.content.Intent(
+                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        android.net.Uri.parse("package:" + context.packageName),
+                    ),
+                )
+            }
+            HorizontalDivider()
+            androidx.compose.runtime.CompositionLocalProvider(
+                androidx.compose.material3.LocalContentColor provides
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = dim),
+            ) {
+                SwitchRow(
+                    stringResource(R.string.tp_clip_enable),
+                    stringResource(R.string.tp_clip_enable_summary),
+                    enabled,
+                    enabled = canOverlay,
+                ) { enabled = it }
+                Text(
+                    stringResource(R.string.tp_clip_explain1),
+                    Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = dim),
+                )
+                Text(
+                    stringResource(R.string.tp_clip_explain2),
+                    Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = dim),
+                )
+                HorizontalDivider(Modifier.padding(top = 16.dp))
+                ValueRow(
+                    stringResource(R.string.tp_clip_position),
+                    stringResource(if (atTop) R.string.tp_clip_top else R.string.tp_clip_bottom),
+                ) { if (canOverlay) posDialog = true }
+                ValueRow(
+                    stringResource(R.string.tp_clip_timeout),
+                    stringResource(R.string.tp_clip_seconds, seconds),
+                ) { if (canOverlay) timeDialog = true }
+                HorizontalDivider()
+                ValueRow(stringResource(R.string.tp_clip_excluded), stringResource(R.string.tp_clip_excluded_summary)) {}
+                SwitchRow(
+                    stringResource(R.string.tp_clip_exclude_system),
+                    stringResource(R.string.tp_clip_exclude_system_summary),
+                    excludeSystem,
+                    enabled = canOverlay,
+                ) { excludeSystem = it }
+            }
+            Text(
+                stringResource(R.string.tp_clip_notice),
+                Modifier.padding(16.dp),
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+    }
+    if (posDialog) {
+        ChoiceDialog(
+            stringResource(R.string.tp_clip_position),
+            listOf(true to stringResource(R.string.tp_clip_top), false to stringResource(R.string.tp_clip_bottom)),
+            atTop,
+            { atTop = it },
+            { posDialog = false },
+        )
+    }
+    if (timeDialog) {
+        ChoiceDialog(
+            stringResource(R.string.tp_clip_timeout),
+            listOf(3, 5, 10, 15).map { it to stringResource(R.string.tp_clip_seconds, it) },
+            seconds,
+            { seconds = it },
+            { timeDialog = false },
         )
     }
 }
