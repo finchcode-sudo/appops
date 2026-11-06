@@ -119,4 +119,14 @@
     <string name="tp_clip_exclude_system">排除系统应用</string>
     <string name="tp_clip_exclude_system_summary">排除所有系统应用，无论单个选项如何</string>
     <string name="tp_clip_notice">暂未实现：这些设置不会生效。</string>
+    <string name="tp_hist_just_now">刚刚</string>
+    <string name="tp_hist_minutes_ago">%1$d 分钟前</string>
+    <string name="tp_hist_hours_ago">%1$d小时前</string>
+    <string name="tp_hist_yesterday">昨天</string>
+    <string name="tp_hist_day_before">前天</string>
+    <string name="tp_hist_days_ago">%1$d天前</string>
+    <string name="tp_hist_date_pattern">M月d日</string>
+    <string name="tp_hist_location">位置</string>
+    <string name="tp_hist_line_allowed">%1$s · %2$s曾允许</string>
+    <string name="tp_hist_line_denied">%1$s · 被拒绝 %2$d 次</string>
 </resources>

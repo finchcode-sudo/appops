@@ -463,7 +463,15 @@ fun AppOpsApp(
                 val opened = historyDetail
                 if (opened != null) {
                     Surface(Modifier.fillMaxSize()) {
-                        HistoryDetailPage(historyVm, opened) { historyDetail = null }
+                        HistoryDetailPage(
+                            vm = historyVm,
+                            operationName = opened,
+                            onOpenApp = { app ->
+                                appDetailVm.selectApp(app)
+                                detailOpen = true
+                            },
+                            onBack = { historyDetail = null },
+                        )
                     }
                 }
             }

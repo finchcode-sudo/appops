@@ -119,4 +119,14 @@
     <string name="tp_clip_exclude_system">Exclude system apps</string>
     <string name="tp_clip_exclude_system_summary">Exclude all system apps, regardless of individual choices</string>
     <string name="tp_clip_notice">Not available yet: these settings have no effect.</string>
+    <string name="tp_hist_just_now">just now</string>
+    <string name="tp_hist_minutes_ago">%1$d min ago</string>
+    <string name="tp_hist_hours_ago">%1$d h ago</string>
+    <string name="tp_hist_yesterday">yesterday</string>
+    <string name="tp_hist_day_before">2 days ago</string>
+    <string name="tp_hist_days_ago">%1$d days ago</string>
+    <string name="tp_hist_date_pattern">MMM d</string>
+    <string name="tp_hist_location">Location</string>
+    <string name="tp_hist_line_allowed">%1$s · allowed %2$s</string>
+    <string name="tp_hist_line_denied">%1$s · denied %2$d times</string>
 </resources>

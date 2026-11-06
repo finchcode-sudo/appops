@@ -152,24 +152,90 @@ private fun HistoryStatus(ui: HistoryUiState) {
     }
 }
 
-/** 某个权限的全部历史记录。 */
+private val LOCATION_OPS = listOf("FINE_LOCATION", "COARSE_LOCATION")
+
 @Composable
-fun HistoryDetailPage(vm: HistoryViewModel, operationName: String, onBack: () -> Unit) {
+private fun relativeTime(millis: Long): String {
+    val diff = (System.currentTimeMillis() - millis).coerceAtLeast(0)
+    val minutes = diff / 60_000
+    val hours = minutes / 60
+    val days = hours / 24
+    return when {
+        minutes < 1 -> stringResource(R.string.tp_hist_just_now)
+        hours < 1 -> stringResource(R.string.tp_hist_minutes_ago, minutes.toInt())
+        days < 1 -> stringResource(R.string.tp_hist_hours_ago, hours.toInt())
+        days == 1L -> stringResource(R.string.tp_hist_yesterday)
+        days == 2L -> stringResource(R.string.tp_hist_day_before)
+        days < 8 -> stringResource(R.string.tp_hist_days_ago, days.toInt())
+        else -> java.text.SimpleDateFormat(
+            stringResource(R.string.tp_hist_date_pattern),
+            java.util.Locale.getDefault(),
+        ).format(Date(millis))
+    }
+}
+
+/** 某个权限的全部历史记录：按应用分组，每个应用列出该权限下各操作的最近一次访问。 */
+@Composable
+fun HistoryDetailPage(
+    vm: HistoryViewModel,
+    operationName: String,
+    onOpenApp: (dev.izumi.appopsnext.apps.model.InstalledApp) -> Unit,
+    onBack: () -> Unit,
+) {
     val ui by vm.uiState.collectAsStateWithLifecycle()
-    val history = ui.permissions.firstOrNull { it.permission.shellOperationName == operationName }
-    val events = remember(history) {
-        history?.events.orEmpty().sortedByDescending { it.event.accessTimeMillis }
+    val group = if (operationName in LOCATION_OPS) LOCATION_OPS else listOf(operationName)
+    var searching by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
+    val rows = remember(ui.permissions, operationName) {
+        ui.permissions
+            .filter { it.permission.shellOperationName in group }
+            .flatMap { it.events }
+            .groupBy { it.app.packageName to it.app.userId }
+            .values
+            .map { list ->
+                val app = list.first().app
+                val perOp = list.groupBy { it.event.operationName }
+                    .map { (op, evs) ->
+                        val latest = evs.maxBy { it.event.accessTimeMillis }.event
+                        val allowed = evs.filter { it.event.accessCount > 0 }.maxByOrNull { it.event.accessTimeMillis }
+                        Triple(op, allowed?.event?.accessTimeMillis ?: latest.accessTimeMillis, evs.sumOf { it.event.rejectCount })
+                            .let { t -> Pair(t, allowed != null) }
+                    }
+                    .sortedBy { group.indexOf(it.first.first) }
+                Triple(app, perOp, perOp.maxOf { it.first.second })
+            }
+            .sortedByDescending { it.third }
+    }
+    val shown = rows.filter {
+        query.isBlank() || it.first.label.contains(query, ignoreCase = true) ||
+            it.first.packageName.contains(query, ignoreCase = true)
     }
 
-    BackHandler(onBack = onBack)
+    BackHandler {
+        if (searching) {
+            searching = false
+            query = ""
+        } else {
+            onBack()
+        }
+    }
 
     Scaffold(
         topBar = {
             ShellTopBar(
-                title = opLabel(operationName),
-                subtitle = operationName,
-                onBack = onBack,
+                title = if (operationName in LOCATION_OPS) stringResource(R.string.tp_hist_location) else opLabel(operationName),
+                onBack = {
+                    if (searching) {
+                        searching = false
+                        query = ""
+                    } else {
+                        onBack()
+                    }
+                },
                 actions = {
+                    IconButton(onClick = { searching = !searching; if (!searching) query = "" }) {
+                        Icon(androidx.compose.material.icons.Icons.Filled.Search, contentDescription = null)
+                    }
                     IconButton(onClick = vm::refresh) {
                         Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.shell_refresh))
                     }
@@ -177,54 +243,51 @@ fun HistoryDetailPage(vm: HistoryViewModel, operationName: String, onBack: () ->
             )
         },
     ) { padding ->
-        if (events.isEmpty()) {
-            Column(
-                Modifier.fillMaxSize().padding(padding),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    stringResource(R.string.history_empty),
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            if (searching) {
+                SearchField(value = query, onValueChange = { query = it }, hint = stringResource(R.string.shell_search_hint))
             }
-        } else {
-            LazyColumn(Modifier.fillMaxSize().padding(padding)) {
-                items(
-                    events,
-                    key = { "${it.app.packageName}:${it.event.accessTimeMillis}:${it.event.attributionTag}:${it.event.isAggregated}" },
-                ) { resolved ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        AppIcon(resolved.app.packageName, resolved.app.label, resolved.app.userId)
-                        Spacer(Modifier.width(16.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(resolved.app.label, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
-                            Text(
-                                formatTime(resolved.event.accessTimeMillis),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            if (resolved.event.isAggregated) {
-                                Text(
-                                    stringResource(
-                                        R.string.history_aggregated_access_count,
-                                        resolved.event.accessCount,
-                                    ),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+            if (shown.isEmpty()) {
+                Column(
+                    Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        stringResource(R.string.history_empty),
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                LazyColumn(Modifier.fillMaxSize()) {
+                    items(shown, key = { "${it.first.packageName}:${it.first.userId}" }) { (app, perOp, _) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            AppIcon(app.packageName, app.label, app.userId)
+                            Spacer(Modifier.width(16.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(app.label, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+                                perOp.forEach { (info, wasAllowed) ->
+                                    val (op, time, rejects) = info
+                                    val text = if (wasAllowed) {
+                                        stringResource(R.string.tp_hist_line_allowed, opLabel(op), relativeTime(time))
+                                    } else {
+                                        stringResource(R.string.tp_hist_line_denied, opLabel(op), rejects)
+                                    }
+                                    Text(
+                                        text,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
-                            if (resolved.event.rejectCount > 0) {
-                                Text(
-                                    stringResource(R.string.shell_history_denied, resolved.event.rejectCount),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.error,
+                            IconButton(onClick = { onOpenApp(app) }) {
+                                Icon(
+                                    androidx.compose.material.icons.Icons.AutoMirrored.Filled.OpenInNew,
+                                    contentDescription = null,
                                 )
                             }
                         }
