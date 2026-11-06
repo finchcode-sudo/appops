@@ -129,4 +129,5 @@
     <string name="tp_hist_location">Location</string>
     <string name="tp_hist_line_allowed">%1$s · allowed %2$s</string>
     <string name="tp_hist_line_denied">%1$s · denied %2$d times</string>
+    <string name="tp_runtime_denied_hint">This app has not been granted this runtime permission, so the system won\'t accept Allow. Grant the permission in system settings first, then try again.</string>
 </resources>

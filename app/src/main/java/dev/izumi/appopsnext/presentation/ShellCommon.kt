@@ -308,7 +308,8 @@ private fun FailureDialog(
     onTryForeground: () -> Unit,
 ) {
     val result = state.result
-    val tryForeground = state.request.requestedMode == AppOpMode.ALLOW
+    val tryForeground = dev.izumi.appopsnext.presentation.app_detail.ModeChangeAlternativePolicy
+        .canTryForeground(state.request, result)
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.app_detail_mode_change_failure)) },
@@ -332,6 +333,7 @@ private fun FailureDialog(
                     Text(stringResource(R.string.app_detail_mode_deny_fallback_failed))
                 }
                 val hint = when {
+                    state.request.runtimePermissionDenied -> R.string.tp_runtime_denied_hint
                     state.runtimePermissionManaged -> R.string.app_detail_mode_runtime_managed_hint
                     tryForeground -> R.string.app_detail_mode_allow_foreground_hint
                     else -> R.string.app_detail_mode_change_rejected_hint
