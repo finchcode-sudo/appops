@@ -428,11 +428,7 @@ fun AppOpsApp(
                                 PAGE_HISTORY -> HistoryPage(historyVm) { historyDetail = it }
                                 3 -> Unit
                                 4 -> Unit
-                                5 -> TemplatesPage(templatesVm)
-                                6 -> NewAppBehaviorPage(templatesVm)
-                                7 -> BackupPage(settingsVm)
-                                8 -> AutoRestorePage(guardVm)
-                                9 -> SettingsPage(settingsVm)
+                                in 5..9 -> Unit
                                 else -> PlaceholderPage(ALL_ENTRIES.firstOrNull { it.id == page }?.label)
                             }
                         }
@@ -445,6 +441,27 @@ fun AppOpsApp(
             if (detailOpen) {
                 Surface(Modifier.fillMaxSize()) {
                     AppDetailPage(appDetailVm) { detailOpen = false }
+                }
+            } else if (page in 5..9) {
+                Surface(Modifier.fillMaxSize()) {
+                    BackHandler { page = PAGE_APPS }
+                    Column(Modifier.fillMaxSize()) {
+                        ShellTopBar(
+                            title = stringResource(ALL_ENTRIES.first { it.id == page }.label),
+                            onBack = { page = PAGE_APPS },
+                        )
+                        androidx.compose.runtime.CompositionLocalProvider(LocalRowStart provides 72.dp) {
+                            Box(Modifier.weight(1f)) {
+                                when (page) {
+                                    5 -> TemplatesPage(templatesVm)
+                                    6 -> NewAppBehaviorPage(templatesVm)
+                                    7 -> BackupPage(settingsVm)
+                                    8 -> AutoRestorePage(guardVm)
+                                    else -> SettingsPage(settingsVm)
+                                }
+                            }
+                        }
+                    }
                 }
             } else if (page == 4) {
                 Surface(Modifier.fillMaxSize()) {

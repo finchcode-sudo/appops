@@ -52,7 +52,7 @@ private fun SectionTitle(text: String) {
         text,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 4.dp),
+        modifier = Modifier.padding(start = LocalRowStart.current, end = 16.dp, top = 20.dp, bottom = 4.dp),
     )
 }
 
@@ -177,7 +177,7 @@ internal fun AutoRestorePage(vm: GuardViewModel) {
         item { SectionTitle(stringResource(R.string.tp_guard_mode)) }
         items(GuardMode.entries.toList()) { m ->
             Row(
-                Modifier.fillMaxWidth().clickable { vm.setMode(m) }.padding(horizontal = 8.dp, vertical = 4.dp),
+                Modifier.fillMaxWidth().clickable { vm.setMode(m) }.padding(start = LocalRowStart.current - 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(selected = mode == m, onClick = { vm.setMode(m) })
@@ -188,7 +188,7 @@ internal fun AutoRestorePage(vm: GuardViewModel) {
             Button(
                 onClick = { vm.checkNow() },
                 enabled = !checking && rules.isNotEmpty(),
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(start = LocalRowStart.current, top = 16.dp, bottom = 16.dp),
             ) { Text(stringResource(if (checking) R.string.tp_guard_checking else R.string.tp_guard_check_now)) }
         }
         item { SectionTitle(stringResource(R.string.tp_guard_rules, rules.size)) }
@@ -202,7 +202,7 @@ internal fun AutoRestorePage(vm: GuardViewModel) {
             }
         }
         items(rules, key = { it.id }) { rule ->
-            Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().padding(start = LocalRowStart.current, end = 4.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(opLabel(rule.stableOperationName), style = MaterialTheme.typography.bodyLarge)
                     Text(
@@ -239,7 +239,7 @@ internal fun BackupPage(vm: SettingsViewModel) {
         if (uri != null) vm.openBackup(uri)
     }
     val backup = state.backup
-    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(Modifier.fillMaxSize().padding(start = LocalRowStart.current, end = 16.dp, top = 16.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.tp_backup_intro), color = MaterialTheme.colorScheme.onSurfaceVariant)
         Button(onClick = { create.launch("appops-backup.json") }, enabled = backup !is BackupUiState.Working) {
             Text(stringResource(R.string.tp_backup_create))
@@ -320,7 +320,7 @@ internal fun TemplatesPage(vm: TemplatesViewModel) {
         }
     } else {
         Column(Modifier.fillMaxSize()) {
-            Button(onClick = { creating = true; name = "" }, modifier = Modifier.padding(16.dp)) {
+            Button(onClick = { creating = true; name = "" }, modifier = Modifier.padding(start = LocalRowStart.current, top = 16.dp, bottom = 16.dp)) {
                 Text(stringResource(R.string.tp_tpl_create))
             }
             LazyColumn(Modifier.weight(1f)) {
@@ -329,7 +329,7 @@ internal fun TemplatesPage(vm: TemplatesViewModel) {
                 }
                 items(state.templates, key = { it.id }) { t ->
                     Row(
-                        Modifier.fillMaxWidth().clickable { vm.selectTemplate(t.id) }.padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+                        Modifier.fillMaxWidth().clickable { vm.selectTemplate(t.id) }.padding(start = LocalRowStart.current, end = 4.dp, top = 6.dp, bottom = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(Modifier.weight(1f)) {
