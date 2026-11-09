@@ -7,11 +7,11 @@ import rikka.shizuku.Shizuku
  * Isolates the deprecated Shizuku remote-process protocol used only to
  * bootstrap the native privileged backend.
  */
-internal class ShizukuRemoteProcessLauncher {
-    fun launch(
+internal class ShizukuRemoteProcessLauncher : ProcessLauncher {
+    override fun launch(
         arguments: List<String>,
-        environment: Map<String, String> = emptyMap(),
-        workingDirectory: String? = null,
+        environment: Map<String, String>,
+        workingDirectory: String?,
     ): RemoteProcessHandle {
         require(arguments.isNotEmpty()) {
             "A remote process requires at least one argument"

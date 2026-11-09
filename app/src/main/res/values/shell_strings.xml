@@ -132,4 +132,9 @@
     <string name="tp_runtime_denied_hint">This app has not been granted this runtime permission, so the system won\'t accept Allow. Grant the permission in system settings first, then try again.</string>
     <string name="shell_mode_shizuku_label">Shizuku mode</string>
     <string name="shell_drawer_users">Users</string>
+    <string name="shell_mode_root">Root mode</string>
+    <string name="shell_mode_root_pros">+ Very fast, negligible resource use\n+ Enjoy all features\n+ No extra app needed</string>
+    <string name="shell_mode_root_cons">- Requires a rooted device\n- Root access must be granted to this app the first time</string>
+    <string name="shell_status_root_connected">Root connected</string>
+    <string name="shell_status_root_unavailable">Can't get root access. Make sure root is granted to this app.</string>
 </resources>

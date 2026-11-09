@@ -162,6 +162,8 @@ private val NAV_TEXT = listOf(
 )
 
 private val ALL_ENTRIES = NAV_MAIN + NAV_TOOLS
+private const val MODE_SHIZUKU = 0
+private const val MODE_ROOT = 1
 private const val PAGE_APPS = 0
 private const val PAGE_PERMISSIONS = 1
 private const val PAGE_HISTORY = 2
@@ -188,13 +190,15 @@ fun AppOpsApp(
     onRetryService: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSelectUser: (Int?) -> Unit,
+    rootMode: Boolean,
+    onWorkModeSelected: (Boolean) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val permissionState by permissionVm.state.collectAsStateWithLifecycle()
     val historyState by historyVm.uiState.collectAsStateWithLifecycle()
 
-    var shizukuPicked by rememberSaveable { mutableStateOf(false) }
+    var pickedMode by rememberSaveable { mutableIntStateOf(-1) }
     var page by rememberSaveable { mutableIntStateOf(PAGE_APPS) }
     var modePanel by rememberSaveable { mutableStateOf(false) }
     var menuOpen by rememberSaveable { mutableStateOf(false) }
@@ -248,7 +252,9 @@ fun AppOpsApp(
                                     )
                                 }
                                 Text(
-                                    stringResource(R.string.shell_mode_shizuku_label),
+                                    stringResource(
+                                        if (rootMode) R.string.shell_mode_root else R.string.shell_mode_shizuku_label,
+                                    ),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -310,7 +316,7 @@ fun AppOpsApp(
                             icon = { Icon(Icons.Filled.Settings, null) },
                             selected = false,
                             onClick = {
-                                shizukuPicked = false
+                                pickedMode = -1
                                 modePanel = false
                                 onModeChosenChange(false)
                                 closeDrawer()
@@ -458,13 +464,16 @@ fun AppOpsApp(
                 Box(Modifier.fillMaxSize().padding(padding)) {
                     if (!modeChosen) {
                         ModeScreen(
-                            picked = shizukuPicked,
-                            onPick = { shizukuPicked = it },
-                            onContinue = { onModeChosenChange(true) },
+                            picked = pickedMode,
+                            onPick = { pickedMode = it },
+                            onContinue = {
+                                onWorkModeSelected(pickedMode == MODE_ROOT)
+                                onModeChosenChange(true)
+                            },
                         )
                     } else {
                         Column(Modifier.fillMaxSize()) {
-                            ConnectionBanner(diagnostics, onShizukuAction, onRetryService)
+                            ConnectionBanner(diagnostics, rootMode, onShizukuAction, onRetryService)
                             when (page) {
                                 PAGE_APPS -> AppListPage(appList, showFramework) { app ->
                                     appDetailVm.selectApp(app)
@@ -606,7 +615,7 @@ private fun DrawerRow(entry: NavEntry, selected: Boolean, onClick: () -> Unit) {
 // ---- 工作模式选择页 ----
 
 @Composable
-private fun ModeScreen(picked: Boolean, onPick: (Boolean) -> Unit, onContinue: () -> Unit) {
+private fun ModeScreen(picked: Int, onPick: (Int) -> Unit, onContinue: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -620,42 +629,26 @@ private fun ModeScreen(picked: Boolean, onPick: (Boolean) -> Unit, onContinue: (
         )
         Spacer(Modifier.height(28.dp))
 
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .clickable { onPick(!picked) },
-        ) {
-            Column(Modifier.padding(end = 56.dp)) {
-                Text(
-                    stringResource(R.string.shell_mode_shizuku),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium,
-                )
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    stringResource(R.string.shell_mode_shizuku_pros),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    stringResource(R.string.shell_mode_shizuku_cons),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            RadioButton(
-                selected = picked,
-                onClick = { onPick(!picked) },
-                modifier = Modifier.align(Alignment.CenterEnd).offset(x = 7.dp).size(48.dp),
-            )
-        }
+        ModeOption(
+            title = R.string.shell_mode_shizuku,
+            pros = R.string.shell_mode_shizuku_pros,
+            cons = R.string.shell_mode_shizuku_cons,
+            selected = picked == MODE_SHIZUKU,
+            onClick = { onPick(if (picked == MODE_SHIZUKU) -1 else MODE_SHIZUKU) },
+        )
+        Spacer(Modifier.height(32.dp))
+        ModeOption(
+            title = R.string.shell_mode_root,
+            pros = R.string.shell_mode_root_pros,
+            cons = R.string.shell_mode_root_cons,
+            selected = picked == MODE_ROOT,
+            onClick = { onPick(if (picked == MODE_ROOT) -1 else MODE_ROOT) },
+        )
 
         Spacer(Modifier.height(24.dp))
         FilledTonalButton(
             onClick = onContinue,
-            enabled = picked,
+            enabled = picked >= 0,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.filledTonalButtonColors(
                 disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
@@ -674,11 +667,53 @@ private fun ModeScreen(picked: Boolean, onPick: (Boolean) -> Unit, onContinue: (
     }
 }
 
+@Composable
+private fun ModeOption(
+    @StringRes title: Int,
+    @StringRes pros: Int,
+    @StringRes cons: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+    ) {
+        Column(Modifier.padding(end = 56.dp)) {
+            Text(
+                stringResource(title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Medium,
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                stringResource(pros),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(20.dp))
+            Text(
+                stringResource(cons),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        RadioButton(
+            selected = selected,
+            onClick = onClick,
+            modifier = Modifier.align(Alignment.CenterEnd).offset(x = 7.dp).size(48.dp),
+        )
+    }
+}
+
 // ---- Shizuku 连接状态条 ----
 
 @Composable
 private fun ConnectionBanner(
     diagnostics: DiagnosticsUiState,
+    rootMode: Boolean,
     onAuthorize: () -> Unit,
     onRetry: () -> Unit,
 ) {
@@ -689,7 +724,23 @@ private fun ConnectionBanner(
     var button: Int? = null
     var action: () -> Unit = {}
     var problem = true
-    when (shizuku) {
+    if (rootMode) {
+        when (service) {
+            is PrivilegedServiceState.Connected -> {
+                text = R.string.shell_status_root_connected
+                problem = false
+            }
+            is PrivilegedServiceState.Connecting -> {
+                text = R.string.shell_status_connecting
+                problem = false
+            }
+            else -> {
+                text = R.string.shell_status_root_unavailable
+                button = R.string.shell_action_retry
+                action = onRetry
+            }
+        }
+    } else when (shizuku) {
         ShizukuState.Checking -> {
             text = R.string.shell_status_checking
             problem = false

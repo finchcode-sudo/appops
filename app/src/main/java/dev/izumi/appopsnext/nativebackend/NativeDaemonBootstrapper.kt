@@ -3,6 +3,9 @@ package dev.izumi.appopsnext.nativebackend
 import android.content.Context
 import dev.izumi.appopsnext.BuildConfig
 import dev.izumi.appopsnext.shizuku.process.RemoteProcessHandle
+import dev.izumi.appopsnext.shizuku.WorkModeStore
+import dev.izumi.appopsnext.shizuku.process.ProcessLauncher
+import dev.izumi.appopsnext.shizuku.process.RootProcessLauncher
 import dev.izumi.appopsnext.shizuku.process.ShizukuRemoteProcessLauncher
 import java.io.IOException
 import java.security.SecureRandom
@@ -20,11 +23,15 @@ import kotlinx.coroutines.withContext
  */
 internal class NativeDaemonBootstrapper(
     context: Context,
-    private val processLauncher: ShizukuRemoteProcessLauncher =
+    private val shizukuLauncher: ShizukuRemoteProcessLauncher =
         ShizukuRemoteProcessLauncher(),
+    private val rootLauncher: RootProcessLauncher = RootProcessLauncher(),
     private val secureRandom: SecureRandom = SecureRandom(),
 ) {
     private val applicationContext = context.applicationContext
+
+    private val processLauncher: ProcessLauncher
+        get() = if (WorkModeStore.isRoot(applicationContext)) rootLauncher else shizukuLauncher
 
     internal suspend fun launch(): NativeDaemonConnection =
         withContext(Dispatchers.IO) {

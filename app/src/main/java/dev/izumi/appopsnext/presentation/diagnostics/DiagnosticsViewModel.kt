@@ -86,8 +86,15 @@ class DiagnosticsViewModel(
     init {
         shizukuController.start()
         viewModelScope.launch {
-            shizukuController.state.collect { state ->
-                if (state is ShizukuState.Ready) {
+            var lastRoot: Boolean? = null
+            kotlinx.coroutines.flow.combine(
+                shizukuController.state,
+                dev.izumi.appopsnext.shizuku.WorkModeStore.root(application),
+            ) { state, root -> state to root }.collect { (state, root) ->
+                // A change of work mode needs a fresh backend of the other kind.
+                if (lastRoot != null && lastRoot != root) privilegedServiceClient.disconnect()
+                lastRoot = root
+                if (root || state is ShizukuState.Ready) {
                     privilegedServiceClient.connect()
                 } else {
                     privilegedServiceClient.disconnect()

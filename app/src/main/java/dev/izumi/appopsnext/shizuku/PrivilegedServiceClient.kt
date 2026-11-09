@@ -38,6 +38,8 @@ class PrivilegedServiceClient(
     context: Context,
     private val diagnosticLog: DiagnosticLogRepository,
 ) : PrivilegedAppOpsGateway {
+    private val appContext = context.applicationContext
+
     private val mutableState =
         MutableStateFlow<PrivilegedServiceState>(PrivilegedServiceState.Disconnected)
     val state: StateFlow<PrivilegedServiceState> = mutableState.asStateFlow()
@@ -134,7 +136,7 @@ class PrivilegedServiceClient(
     /** Connects from the background when Shizuku is up and allows it, as guard checks and new-app rules need. */
     suspend fun ensureConnected(timeoutMillis: Long = BACKGROUND_CONNECT_TIMEOUT_MILLIS): Boolean {
         if (mutableState.value is PrivilegedServiceState.Connected) return true
-        val shizukuReady = runCatching {
+        val shizukuReady = WorkModeStore.isRoot(appContext) || runCatching {
             Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
         }.getOrDefault(false)
         if (!shizukuReady) return false
@@ -219,7 +221,13 @@ class PrivilegedServiceClient(
                             "UserService. ${error::class.java.simpleName}: " +
                             error.message.orEmpty(),
                 )
-                bindUserService()
+                if (WorkModeStore.isRoot(appContext)) {
+                    mutableState.value = PrivilegedServiceState.Failure(
+                        PrivilegedServiceFailureReason.BIND_FAILED,
+                    )
+                } else {
+                    bindUserService()
+                }
             }
         }
     }

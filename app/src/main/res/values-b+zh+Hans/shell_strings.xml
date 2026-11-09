@@ -132,4 +132,9 @@
     <string name="tp_runtime_denied_hint">该应用尚未获得此运行时权限，系统不接受“允许”。请先在系统设置里授予权限，再重试。</string>
     <string name="shell_mode_shizuku_label">Shizuku 模式</string>
     <string name="shell_drawer_users">用户</string>
+    <string name="shell_mode_root">Root 模式</string>
+    <string name="shell_mode_root_pros">+ 非常快，资源消耗可忽略不计\n+ 享受全部功能\n+ 无需安装额外的应用</string>
+    <string name="shell_mode_root_cons">- 需要已 root 的设备\n- 首次使用时需要授予本应用 root 权限</string>
+    <string name="shell_status_root_connected">Root 已连接</string>
+    <string name="shell_status_root_unavailable">无法获取 root 权限，请确认已授予本应用 root 权限</string>
 </resources>

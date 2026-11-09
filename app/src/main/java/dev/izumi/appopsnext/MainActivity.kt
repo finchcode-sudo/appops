@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
             val diagnostics by diagnosticsViewModel.uiState.collectAsStateWithLifecycle()
             val appList by appListViewModel.uiState.collectAsStateWithLifecycle()
             val settings by settingsViewModel.uiState.collectAsStateWithLifecycle()
+            val rootMode by dev.izumi.appopsnext.shizuku.WorkModeStore.root(this@MainActivity).collectAsStateWithLifecycle()
 
             AppOpsTheme {
                 AppOpsApp(
@@ -69,6 +70,8 @@ class MainActivity : ComponentActivity() {
                     onRetryService = diagnosticsViewModel::retryPrivilegedService,
                     onSearchQueryChange = appListViewModel::updateSearchQuery,
                     onSelectUser = appListViewModel::selectUser,
+                    rootMode = rootMode,
+                    onWorkModeSelected = { dev.izumi.appopsnext.shizuku.WorkModeStore.setRoot(this@MainActivity, it) },
                 )
             }
         }
