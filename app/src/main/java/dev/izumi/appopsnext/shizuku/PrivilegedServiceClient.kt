@@ -222,9 +222,20 @@ class PrivilegedServiceClient(
                             error.message.orEmpty(),
                 )
                 if (WorkModeStore.isRoot(appContext)) {
+                    // Like App Manager: without a working root, go back to the Shizuku mode.
+                    diagnosticLog.warning(
+                        source = NATIVE_LOG_SOURCE,
+                        message = "Root backend unavailable; switching back to Shizuku mode.",
+                    )
                     mutableState.value = PrivilegedServiceState.Failure(
                         PrivilegedServiceFailureReason.BIND_FAILED,
                     )
+                    android.widget.Toast.makeText(
+                        appContext,
+                        dev.izumi.appopsnext.R.string.shell_root_fallback,
+                        android.widget.Toast.LENGTH_LONG,
+                    ).show()
+                    WorkModeStore.setRoot(appContext, false)
                 } else {
                     bindUserService()
                 }

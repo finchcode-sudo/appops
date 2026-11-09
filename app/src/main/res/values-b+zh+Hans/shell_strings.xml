@@ -137,4 +137,5 @@
     <string name="shell_mode_root_cons">- 需要已 root 的设备\n- 首次使用时需要授予本应用 root 权限</string>
     <string name="shell_status_root_connected">Root 已连接</string>
     <string name="shell_status_root_unavailable">无法获取 root 权限，请确认已授予本应用 root 权限</string>
+    <string name="shell_root_fallback">无法获取 root 权限，已切换回 Shizuku 模式</string>
 </resources>
