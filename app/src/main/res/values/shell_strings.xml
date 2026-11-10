@@ -136,6 +136,6 @@
     <string name="shell_mode_root_pros">+ Very fast, negligible resource use\n+ Enjoy all features\n+ No extra app needed</string>
     <string name="shell_mode_root_cons">- Requires a rooted device\n- Root access must be granted to this app the first time</string>
     <string name="shell_status_root_connected">Root connected</string>
-    <string name="shell_status_root_unavailable">Can't get root access. Make sure root is granted to this app.</string>
-    <string name="shell_root_fallback">Can't get root access. Switched back to Shizuku mode.</string>
+    <string name="shell_status_root_unavailable">Can\'t get root access. Make sure root is granted to this app.</string>
+    <string name="shell_root_fallback">Can\'t get root access. Switched back to Shizuku mode.</string>
 </resources>
