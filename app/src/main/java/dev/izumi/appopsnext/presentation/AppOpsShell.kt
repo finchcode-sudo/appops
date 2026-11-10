@@ -242,7 +242,7 @@ fun AppOpsApp(
                                 style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                            if (modeChosen) {
+                            if (modeChosen && diagnostics.privilegedServiceState is PrivilegedServiceState.Connected) {
                                 val owner = ownerName(appList)
                                 if (owner.isNotEmpty()) {
                                     Text(
