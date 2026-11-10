@@ -473,6 +473,7 @@ fun AppOpsApp(
                         )
                     } else {
                         Column(Modifier.fillMaxSize()) {
+                            ConnectionBanner(diagnostics, rootMode, onShizukuAction, onRetryService)
                             when (page) {
                                 PAGE_APPS -> AppListPage(appList, showFramework) { app ->
                                     appDetailVm.selectApp(app)
@@ -704,6 +705,111 @@ private fun ModeOption(
             onClick = onClick,
             modifier = Modifier.align(Alignment.CenterEnd).offset(x = 7.dp).size(48.dp),
         )
+    }
+}
+
+// ---- Shizuku 连接状态条 ----
+
+@Composable
+private fun ConnectionBanner(
+    diagnostics: DiagnosticsUiState,
+    rootMode: Boolean,
+    onAuthorize: () -> Unit,
+    onRetry: () -> Unit,
+) {
+    val shizuku = diagnostics.shizukuState
+    val service = diagnostics.privilegedServiceState
+
+    var text: Int
+    var button: Int? = null
+    var action: () -> Unit = {}
+    var problem = true
+    if (rootMode) {
+        when (service) {
+            is PrivilegedServiceState.Connected -> {
+                text = R.string.shell_status_root_connected
+                problem = false
+            }
+            is PrivilegedServiceState.Connecting -> {
+                text = R.string.shell_status_connecting
+                problem = false
+            }
+            else -> {
+                text = R.string.shell_status_root_unavailable
+                button = R.string.shell_action_retry
+                action = onRetry
+            }
+        }
+    } else when (shizuku) {
+        ShizukuState.Checking -> {
+            text = R.string.shell_status_checking
+            problem = false
+        }
+        is ShizukuState.Unavailable -> {
+            text = if (shizuku.isInstalled) R.string.shell_status_not_running
+            else R.string.shell_status_not_installed
+            button = R.string.shell_action_retry
+            action = onAuthorize
+        }
+        ShizukuState.Unsupported -> text = R.string.shell_status_unsupported
+        ShizukuState.PermissionRequired -> {
+            text = R.string.shell_status_permission
+            button = R.string.shell_action_authorize
+            action = onAuthorize
+        }
+        ShizukuState.PermissionDenied -> {
+            text = R.string.shell_status_permission_denied
+            button = R.string.shell_action_authorize
+            action = onAuthorize
+        }
+        is ShizukuState.Failure -> {
+            text = R.string.shell_status_read_failed
+            button = R.string.shell_action_retry
+            action = onAuthorize
+        }
+        is ShizukuState.Ready -> when (service) {
+            is PrivilegedServiceState.Connected -> {
+                text = R.string.shell_status_connected
+                problem = false
+            }
+            is PrivilegedServiceState.Connecting -> {
+                text = R.string.shell_status_connecting
+                problem = false
+            }
+            is PrivilegedServiceState.Failure -> {
+                text = R.string.shell_status_backend_failed
+                button = R.string.shell_action_retry
+                action = onRetry
+            }
+            PrivilegedServiceState.Disconnected -> {
+                text = R.string.shell_status_disconnected
+                button = R.string.shell_action_retry
+                action = onRetry
+            }
+        }
+    }
+
+    // Only the "connected" bar goes away; problems and the authorize button stay.
+    if (text == R.string.shell_status_connected || text == R.string.shell_status_root_connected) return
+
+    Surface(
+        color = if (problem) MaterialTheme.colorScheme.errorContainer
+        else MaterialTheme.colorScheme.secondaryContainer,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            Modifier.padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                stringResource(text),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f).padding(vertical = 8.dp),
+            )
+            button?.let { label ->
+                TextButton(onClick = action) { Text(stringResource(label)) }
+            }
+        }
     }
 }
 
