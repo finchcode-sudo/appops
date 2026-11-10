@@ -198,7 +198,9 @@ fun AppOpsApp(
     val permissionState by permissionVm.state.collectAsStateWithLifecycle()
     val historyState by historyVm.uiState.collectAsStateWithLifecycle()
 
-    var pickedMode by rememberSaveable { mutableIntStateOf(-1) }
+    var pickedMode by rememberSaveable {
+        mutableIntStateOf(if (!modeChosen) -1 else if (rootMode) MODE_ROOT else MODE_SHIZUKU)
+    }
     var page by rememberSaveable { mutableIntStateOf(PAGE_APPS) }
     var modePanel by rememberSaveable { mutableStateOf(false) }
     var menuOpen by rememberSaveable { mutableStateOf(false) }
@@ -208,7 +210,10 @@ fun AppOpsApp(
     var historyDetail by rememberSaveable { mutableStateOf<String?>(null) }
     var managingHistory by rememberSaveable { mutableStateOf(false) }
 
-    val searchable = modeChosen && (page == PAGE_APPS || page == PAGE_PERMISSIONS)
+    // Without a working Shizuku or root connection the three main views show the mode page.
+    val connected = diagnostics.privilegedServiceState is PrivilegedServiceState.Connected
+    val showModePage = !modeChosen || (page in 0..2 && !connected)
+    val searchable = !showModePage && (page == PAGE_APPS || page == PAGE_PERMISSIONS)
     val overlayOpen = detailOpen ||
         (page == PAGE_PERMISSIONS && permissionState.operation != null) ||
         historyDetail != null
@@ -378,7 +383,7 @@ fun AppOpsApp(
                             } else {
                                 Column {
                                     Text(stringResource(R.string.app_name))
-                                    if (modeChosen) {
+                                    if (modeChosen && connected) {
                                         val owner = ownerName(appList)
                                         if (owner.isNotEmpty()) {
                                             Text(
@@ -397,7 +402,7 @@ fun AppOpsApp(
                             }
                         },
                         actions = {
-                            if (modeChosen && page == PAGE_HISTORY) {
+                            if (!showModePage && page == PAGE_HISTORY) {
                                 IconButton(onClick = historyVm::refresh) {
                                     Icon(
                                         Icons.Filled.Refresh,
@@ -446,7 +451,7 @@ fun AppOpsApp(
                                         trailingIcon = { Checkbox(checked = showFramework, onCheckedChange = null) },
                                         onClick = { showFramework = !showFramework },
                                     )
-                                    if (modeChosen && page == PAGE_HISTORY) {
+                                    if (!showModePage && page == PAGE_HISTORY) {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.history_manage_permissions)) },
                                             onClick = {
@@ -462,13 +467,15 @@ fun AppOpsApp(
                 },
             ) { padding ->
                 Box(Modifier.fillMaxSize().padding(padding)) {
-                    if (!modeChosen) {
+                    if (showModePage) {
                         ModeScreen(
                             picked = pickedMode,
                             onPick = { pickedMode = it },
                             onContinue = {
                                 onWorkModeSelected(pickedMode == MODE_ROOT)
                                 onModeChosenChange(true)
+                                // Start activating: ask Shizuku for permission, or retry the root connection.
+                                if (pickedMode == MODE_ROOT) onRetryService() else onShizukuAction()
                             },
                         )
                     } else {
