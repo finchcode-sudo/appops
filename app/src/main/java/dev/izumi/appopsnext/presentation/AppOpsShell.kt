@@ -495,7 +495,7 @@ fun AppOpsApp(
             }
         }
 
-        if (modeChosen) {
+        if (modeChosen || page in 3..9) {
             if (detailOpen) {
                 Surface(Modifier.fillMaxSize()) {
                     AppDetailPage(appDetailVm) { detailOpen = false }
