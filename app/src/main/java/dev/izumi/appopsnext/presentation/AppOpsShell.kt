@@ -212,9 +212,9 @@ fun AppOpsApp(
     var managingHistory by rememberSaveable { mutableStateOf(false) }
     var textPage by rememberSaveable { mutableIntStateOf(-1) }
 
-    // Without a working Shizuku or root connection the three main views show the mode page.
+    // Without a working Shizuku or root connection every page except Settings shows the mode page.
     val connected = diagnostics.privilegedServiceState is PrivilegedServiceState.Connected
-    val showModePage = !modeChosen || (page in 0..2 && !connected)
+    val showModePage = !modeChosen || (page in 0..8 && !connected)
     val searchable = !showModePage && (page == PAGE_APPS || page == PAGE_PERMISSIONS)
     val overlayOpen = detailOpen ||
         (page == PAGE_PERMISSIONS && permissionState.operation != null) ||
@@ -507,7 +507,7 @@ fun AppOpsApp(
             }
         }
 
-        if (modeChosen || page in 3..9) {
+        if (!showModePage || page == 9) {
             if (detailOpen) {
                 Surface(Modifier.fillMaxSize()) {
                     AppDetailPage(appDetailVm) { detailOpen = false }
