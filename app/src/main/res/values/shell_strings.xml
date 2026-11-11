@@ -2,8 +2,8 @@
 <resources>
     <string name="shell_choose_mode">Choose a working mode:</string>
     <string name="shell_mode_shizuku">Shizuku mode</string>
-    <string name="shell_mode_shizuku_pros">+ Works on rooted and non-rooted devices\n+ Very fast, negligible resource usage\n+ Enjoy all features</string>
-    <string name="shell_mode_shizuku_cons">- Requires installing an open-source app (Shizuku)\n- On non-rooted devices, Shizuku must be started with adb from a computer after every reboot\n- On Android 11 and above, Shizuku can start without a computer</string>
+    <string name="shell_mode_shizuku_pros">+ Works on rooted and non-rooted devices\n+ Fast, very low resource usage\n+ Supports all features of this app</string>
+    <string name="shell_mode_shizuku_cons">- Shizuku must be installed and started first, and this app granted in Shizuku\n- Non-rooted devices: on Android 11 and above it can start on the phone itself through wireless debugging, no computer needed; on Android 10 and below it must be started from a computer with adb\n- On non-rooted devices Shizuku stops after a reboot and must be started again</string>
     <string name="shell_continue">Continue</string>
 
     <string name="shell_menu_options">Options</string>
@@ -132,8 +132,8 @@
     <string name="shell_mode_shizuku_label">Shizuku mode</string>
     <string name="shell_drawer_users">Users</string>
     <string name="shell_mode_root">Root mode</string>
-    <string name="shell_mode_root_pros">+ Very fast, negligible resource use\n+ Enjoy all features\n+ No extra app needed</string>
-    <string name="shell_mode_root_cons">- Requires a rooted device\n- Root access must be granted to this app the first time</string>
+    <string name="shell_mode_root_pros">+ Fast, very low resource usage\n+ No extra app needed\n+ Nothing to do again after a reboot</string>
+    <string name="shell_mode_root_cons">- Requires a rooted device; root access must be granted to this app in your root manager the first time\n- Features that listen in real time (new app behavior, usage monitor, clipboard monitor) may not work in Root mode; use Shizuku mode for them</string>
     <string name="shell_status_root_connected">Root connected</string>
     <string name="shell_status_root_unavailable">Can\'t get root access. Make sure root is granted to this app.</string>
     <string name="shell_root_fallback">Can\'t get root access. Switched back to Shizuku mode.</string>

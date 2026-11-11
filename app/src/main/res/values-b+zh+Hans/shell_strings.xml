@@ -2,8 +2,8 @@
 <resources>
     <string name="shell_choose_mode">选择一个工作模式:</string>
     <string name="shell_mode_shizuku">Shizuku 模式</string>
-    <string name="shell_mode_shizuku_pros">+ 在 root 和非 root 设备上均可工作\n+ 非常快，资源消耗可忽略不计\n+ 享受全部功能</string>
-    <string name="shell_mode_shizuku_cons">- 需要安装一个开源应用（Shizuku）\n- 对于非 root 设备，每次设备重新启动都需要通过电脑使用 adb 来启动 Shizuku\n- 对于 Android 11 及以上设备，Shizuku 无需电脑即可启动</string>
+    <string name="shell_mode_shizuku_pros">+ root 和非 root 设备都可以使用\n+ 速度快，资源占用极低\n+ 支持本应用的全部功能</string>
+    <string name="shell_mode_shizuku_cons">- 需要先安装并启动 Shizuku，并在 Shizuku 中授权本应用\n- 非 root 设备：Android 11 及以上可通过无线调试直接在手机上启动，无需电脑；Android 10 及以下需要用电脑通过 adb 启动\n- 非 root 设备重启后 Shizuku 会停止，需要重新启动</string>
     <string name="shell_continue">继续</string>
 
     <string name="shell_menu_options">选项</string>
@@ -132,8 +132,8 @@
     <string name="shell_mode_shizuku_label">Shizuku 模式</string>
     <string name="shell_drawer_users">用户</string>
     <string name="shell_mode_root">Root 模式</string>
-    <string name="shell_mode_root_pros">+ 非常快，资源消耗可忽略不计\n+ 享受全部功能\n+ 无需安装额外的应用</string>
-    <string name="shell_mode_root_cons">- 需要已 root 的设备\n- 首次使用时需要授予本应用 root 权限</string>
+    <string name="shell_mode_root_pros">+ 速度快，资源占用极低\n+ 无需安装其他应用\n+ 设备重启后无需额外操作</string>
+    <string name="shell_mode_root_cons">- 需要已 root 的设备，首次使用时要在 root 管理器中授予本应用 root 权限\n- 新应用行为、使用情况监视器、剪贴板监视器这类需要实时监听的功能，在 Root 模式下可能无法使用，需要时请改用 Shizuku 模式</string>
     <string name="shell_status_root_connected">Root 已连接</string>
     <string name="shell_status_root_unavailable">无法获取 root 权限，请确认已授予本应用 root 权限</string>
     <string name="shell_root_fallback">无法获取 root 权限，已切换回 Shizuku 模式</string>
