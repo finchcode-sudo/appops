@@ -142,4 +142,7 @@
     <string name="tp_clip_allow">允许</string>
     <string name="tp_clip_notif_title">剪贴板监视器运行中</string>
     <string name="tp_clip_notif_channel">剪贴板监视器</string>
+    <string name="tp_help_body">工作模式\n• Shizuku 模式：需要先安装并启动 Shizuku，并在 Shizuku 中授权本应用。\n• Root 模式：需要设备已 root，并在 root 管理器中授权本应用。\n未连接成功时，应用视图、权限视图、使用情况历史会显示工作模式页面。\n\n五种权限模式\n• 允许：应用可以正常使用该权限。\n• 忽略：应用调用不报错，但得不到结果。\n• 拒绝：应用调用会收到错误。\n• 系统默认：由系统决定。\n• 仅前台：仅应用在前台时允许。\n\n常见问题\n• 无法修改某项权限：该应用的运行时权限未授予时，系统不允许设为“允许”。\n• 剪贴板监视器：需要“显示在其他应用上层”权限，并需要 Shizuku 已连接。</string>
+    <string name="tp_log_body">当前版本\n• 新增剪贴板监视器：应用读取剪贴板时弹出提示，可临时允许，支持排除应用。\n• 新增 Root 工作模式，Root 不可用时自动回退到 Shizuku。\n• 新增使用情况监视器、模版、新应用行为、备份和恢复、自动恢复、设置页面。\n• 使用情况历史按应用分组显示。\n• 应用列表加载更快。\n• 抽屉中显示用户列表。</string>
+    <string name="tp_about_body">App Ops\n版本 %1$s\n\n基于 AppOpsNext 1.6.6 后端。\n用于查看和管理应用的 AppOps 权限。</string>
 </resources>

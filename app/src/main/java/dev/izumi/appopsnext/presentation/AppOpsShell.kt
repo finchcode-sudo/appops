@@ -87,6 +87,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -209,6 +210,7 @@ fun AppOpsApp(
     var detailOpen by rememberSaveable { mutableStateOf(false) }
     var historyDetail by rememberSaveable { mutableStateOf<String?>(null) }
     var managingHistory by rememberSaveable { mutableStateOf(false) }
+    var textPage by rememberSaveable { mutableIntStateOf(-1) }
 
     // Without a working Shizuku or root connection the three main views show the mode page.
     val connected = diagnostics.privilegedServiceState is PrivilegedServiceState.Connected
@@ -349,12 +351,15 @@ fun AppOpsApp(
                                 }
                             }
                             HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                            NAV_TEXT.forEach { res ->
+                            NAV_TEXT.forEachIndexed { index, res ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(48.dp)
-                                        .clickable { closeDrawer() }
+                                        .clickable {
+                                            textPage = index
+                                            closeDrawer()
+                                        }
                                         .padding(horizontal = 24.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
@@ -559,6 +564,34 @@ fun AppOpsApp(
                             onBack = { historyDetail = null },
                         )
                     }
+                }
+            }
+        }
+
+        if (textPage >= 0) {
+            val ctx = LocalContext.current
+            val version = remember {
+                runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }
+                    .getOrNull().orEmpty()
+            }
+            val title = NAV_TEXT[textPage]
+            val body = when (textPage) {
+                0 -> stringResource(R.string.tp_help_body)
+                1 -> stringResource(R.string.tp_log_body)
+                else -> stringResource(R.string.tp_about_body, version)
+            }
+            Surface(Modifier.fillMaxSize()) {
+                BackHandler { textPage = -1 }
+                Column(Modifier.fillMaxSize()) {
+                    ShellTopBar(title = stringResource(title), onBack = { textPage = -1 })
+                    Text(
+                        body,
+                        Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
                 }
             }
         }

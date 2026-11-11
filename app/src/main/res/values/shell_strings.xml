@@ -142,4 +142,7 @@
     <string name="tp_clip_allow">Allow</string>
     <string name="tp_clip_notif_title">Clipboard monitor is running</string>
     <string name="tp_clip_notif_channel">Clipboard monitor</string>
+    <string name="tp_help_body">Work modes\n• Shizuku mode: install and start Shizuku first, then grant this app in Shizuku.\n• Root mode: the device must be rooted, and this app granted in your root manager.\nUntil a connection works, the app view, permission view and usage history show the work mode page.\n\nThe five modes\n• Allow: the app can use the permission normally.\n• Ignore: calls do not fail but return no result.\n• Deny: calls receive an error.\n• System default: decided by the system.\n• Foreground only: allowed only while the app is in the foreground.\n\nCommon issues\n• Cannot change a permission: while an app\'s runtime permission is not granted, the system refuses Allow.\n• Clipboard monitor: needs \"Display over other apps\" and a connected Shizuku.</string>
+    <string name="tp_log_body">Current version\n• Clipboard monitor: a prompt when an app reads the clipboard, with temporary allow and app exclusions.\n• Root work mode, falling back to Shizuku when root is unavailable.\n• Usage monitor, templates, new app behavior, backup and restore, auto restore and settings pages.\n• Usage history grouped by app.\n• Faster app list loading.\n• User list in the drawer.</string>
+    <string name="tp_about_body">App Ops\nVersion %1$s\n\nBuilt on the AppOpsNext 1.6.6 backend.\nView and manage apps\' AppOps permissions.</string>
 </resources>
