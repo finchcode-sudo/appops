@@ -499,7 +499,7 @@ internal fun ClipboardMonitorPage(appList: dev.izumi.appopsnext.presentation.app
     }
     val cp = remember { context.getSharedPreferences("app_ops_ui", android.content.Context.MODE_PRIVATE) }
     var enabled by remember { mutableStateOf(cp.getBoolean("clip_enabled", false)) }
-    var atTop by remember { mutableStateOf(cp.getBoolean("clip_top", true)) }
+    var atTop by remember { mutableStateOf(cp.getBoolean("clip_top", false)) }
     var seconds by remember { mutableStateOf(cp.getInt("clip_seconds", 5)) }
     var excludeSystem by remember { mutableStateOf(cp.getBoolean("clip_exclude_system", false)) }
     var clipExcluded by remember { mutableStateOf(cp.getStringSet("clip_excluded", emptySet()).orEmpty().toSet()) }

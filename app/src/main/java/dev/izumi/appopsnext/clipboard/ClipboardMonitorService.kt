@@ -90,15 +90,19 @@ class ClipboardMonitorService : Service() {
         if (!Settings.canDrawOverlays(this)) return
         removeOverlay()
         val seconds = prefs.getInt(KEY_SECONDS, 5)
-        val atTop = prefs.getBoolean(KEY_AT_TOP, true)
+        val atTop = prefs.getBoolean(KEY_AT_TOP, false)
         val dp = resources.displayMetrics.density
+        val dark = (resources.configuration.uiMode and
+            android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding((16 * dp).toInt(), (10 * dp).toInt(), (12 * dp).toInt(), (10 * dp).toInt())
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#E6303030"))
-                cornerRadius = 16 * dp
+                setColor(Color.parseColor(if (dark) "#1B1B1F" else "#F2F3FF"))
+                setStroke((2 * dp).toInt(), Color.parseColor(if (dark) "#A8C7FA" else "#0B57D0"))
+                cornerRadius = 24 * dp
             }
         }
         row.addView(
@@ -107,7 +111,7 @@ class ClipboardMonitorService : Service() {
                     if (allowed) R.string.tp_clip_accessed else R.string.tp_clip_denied,
                     label,
                 )
-                setTextColor(Color.WHITE)
+                setTextColor(Color.parseColor(if (dark) "#E3E2E6" else "#1B1B1F"))
                 textSize = 14f
             },
             LinearLayout.LayoutParams(0, WindowManager.LayoutParams.WRAP_CONTENT, 1f),
