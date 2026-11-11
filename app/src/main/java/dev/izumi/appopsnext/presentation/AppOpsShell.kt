@@ -145,7 +145,7 @@ private class NavEntry(
 private val NAV_MAIN = listOf(
     NavEntry(0, Icons.Filled.Apps, R.string.shell_nav_apps_view),
     NavEntry(1, Icons.AutoMirrored.Filled.ViewList, R.string.shell_nav_permissions_view),
-    NavEntry(2, Icons.Filled.History, R.string.shell_nav_usage_history, chip = true),
+    NavEntry(2, Icons.Filled.History, R.string.shell_nav_usage_history),
 )
 private val NAV_TOOLS = listOf(
     NavEntry(3, Icons.Filled.ContentPaste, R.string.shell_nav_clipboard_monitor),
