@@ -480,10 +480,10 @@ private fun MonitorExcludedPage(
     }
 }
 
-// ---- 剪贴板监视器（仅界面，后端没有此功能） ----
+// ---- 剪贴板监视器 ----
 
 @Composable
-internal fun ClipboardMonitorPage(onBack: () -> Unit) {
+internal fun ClipboardMonitorPage(appList: dev.izumi.appopsnext.presentation.app_list.AppListUiState, onBack: () -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     androidx.activity.compose.BackHandler(onBack = onBack)
     var canOverlay by remember { mutableStateOf(android.provider.Settings.canDrawOverlays(context)) }
@@ -497,10 +497,26 @@ internal fun ClipboardMonitorPage(onBack: () -> Unit) {
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-    var enabled by remember { mutableStateOf(false) }
-    var atTop by remember { mutableStateOf(true) }
-    var seconds by remember { mutableStateOf(5) }
-    var excludeSystem by remember { mutableStateOf(false) }
+    val cp = remember { context.getSharedPreferences("app_ops_ui", android.content.Context.MODE_PRIVATE) }
+    var enabled by remember { mutableStateOf(cp.getBoolean("clip_enabled", false)) }
+    var atTop by remember { mutableStateOf(cp.getBoolean("clip_top", true)) }
+    var seconds by remember { mutableStateOf(cp.getInt("clip_seconds", 5)) }
+    var excludeSystem by remember { mutableStateOf(cp.getBoolean("clip_exclude_system", false)) }
+    var clipExcluded by remember { mutableStateOf(cp.getStringSet("clip_excluded", emptySet()).orEmpty().toSet()) }
+    var picking by remember { mutableStateOf(false) }
+    if (picking) {
+        androidx.activity.compose.BackHandler { picking = false }
+        MonitorExcludedPage(
+            appList.allApps.filter { it.userId == null && it.packageName != context.packageName },
+            clipExcluded,
+            onChange = {
+                clipExcluded = it
+                cp.edit().putStringSet("clip_excluded", it).apply()
+            },
+            onBack = { picking = false },
+        )
+        return
+    }
     var posDialog by remember { mutableStateOf(false) }
     var timeDialog by remember { mutableStateOf(false) }
     val dim = if (canOverlay) 1f else 0.38f
@@ -529,7 +545,12 @@ internal fun ClipboardMonitorPage(onBack: () -> Unit) {
                     stringResource(R.string.tp_clip_enable_summary),
                     enabled,
                     enabled = canOverlay,
-                ) { enabled = it }
+                ) {
+                    enabled = it
+                    cp.edit().putBoolean("clip_enabled", it).apply()
+                    if (it) dev.izumi.appopsnext.clipboard.ClipboardMonitorService.start(context)
+                    else dev.izumi.appopsnext.clipboard.ClipboardMonitorService.stop(context)
+                }
                 Text(
                     stringResource(R.string.tp_clip_explain1),
                     Modifier.padding(start = 72.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
@@ -552,19 +573,19 @@ internal fun ClipboardMonitorPage(onBack: () -> Unit) {
                     stringResource(R.string.tp_clip_seconds, seconds),
                 ) { if (canOverlay) timeDialog = true }
                 HorizontalDivider()
-                ValueRow(stringResource(R.string.tp_clip_excluded), stringResource(R.string.tp_clip_excluded_summary)) {}
+                ValueRow(stringResource(R.string.tp_clip_excluded), stringResource(R.string.tp_clip_excluded_summary)) {
+                    if (canOverlay) picking = true
+                }
                 SwitchRow(
                     stringResource(R.string.tp_clip_exclude_system),
                     stringResource(R.string.tp_clip_exclude_system_summary),
                     excludeSystem,
                     enabled = canOverlay,
-                ) { excludeSystem = it }
+                ) {
+                    excludeSystem = it
+                    cp.edit().putBoolean("clip_exclude_system", it).apply()
+                }
             }
-            Text(
-                stringResource(R.string.tp_clip_notice),
-                Modifier.padding(start = 72.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
-                color = MaterialTheme.colorScheme.error,
-            )
         }
     }
     }
@@ -573,7 +594,7 @@ internal fun ClipboardMonitorPage(onBack: () -> Unit) {
             stringResource(R.string.tp_clip_position),
             listOf(true to stringResource(R.string.tp_clip_top), false to stringResource(R.string.tp_clip_bottom)),
             atTop,
-            { atTop = it },
+            { atTop = it; cp.edit().putBoolean("clip_top", it).apply() },
             { posDialog = false },
         )
     }
@@ -582,7 +603,7 @@ internal fun ClipboardMonitorPage(onBack: () -> Unit) {
             stringResource(R.string.tp_clip_timeout),
             listOf(3, 5, 10, 15).map { it to stringResource(R.string.tp_clip_seconds, it) },
             seconds,
-            { seconds = it },
+            { seconds = it; cp.edit().putInt("clip_seconds", it).apply() },
             { timeDialog = false },
         )
     }

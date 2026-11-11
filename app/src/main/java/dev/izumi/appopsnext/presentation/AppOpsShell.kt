@@ -534,7 +534,7 @@ fun AppOpsApp(
                 }
             } else if (page == 3) {
                 Surface(Modifier.fillMaxSize()) {
-                    ClipboardMonitorPage { page = PAGE_APPS }
+                    ClipboardMonitorPage(appList) { page = PAGE_APPS }
                 }
             } else if (page == PAGE_PERMISSIONS && permissionState.operation != null) {
                 Surface(Modifier.fillMaxSize()) {

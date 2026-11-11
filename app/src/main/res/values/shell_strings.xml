@@ -118,7 +118,6 @@
     <string name="tp_clip_excluded_summary">Choose apps that need no prompt</string>
     <string name="tp_clip_exclude_system">Exclude system apps</string>
     <string name="tp_clip_exclude_system_summary">Exclude all system apps, regardless of individual choices</string>
-    <string name="tp_clip_notice">Not available yet: these settings have no effect.</string>
     <string name="tp_hist_just_now">just now</string>
     <string name="tp_hist_minutes_ago">%1$d min ago</string>
     <string name="tp_hist_hours_ago">%1$d h ago</string>
@@ -138,4 +137,9 @@
     <string name="shell_status_root_connected">Root connected</string>
     <string name="shell_status_root_unavailable">Can\'t get root access. Make sure root is granted to this app.</string>
     <string name="shell_root_fallback">Can\'t get root access. Switched back to Shizuku mode.</string>
+    <string name="tp_clip_accessed">%1$s accessed the clipboard</string>
+    <string name="tp_clip_denied">%1$s was denied clipboard access</string>
+    <string name="tp_clip_allow">Allow</string>
+    <string name="tp_clip_notif_title">Clipboard monitor is running</string>
+    <string name="tp_clip_notif_channel">Clipboard monitor</string>
 </resources>

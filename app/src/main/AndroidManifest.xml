@@ -50,6 +50,15 @@
         </service>
 
         <service
+            android:name=".clipboard.ClipboardMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Shows a prompt when an app reads the clipboard, while the user has the clipboard monitor enabled." />
+        </service>
+
+        <service
             android:name=".guard.GuardWatchService"
             android:exported="false"
             android:foregroundServiceType="specialUse">

@@ -118,7 +118,6 @@
     <string name="tp_clip_excluded_summary">选择不需要提示的应用</string>
     <string name="tp_clip_exclude_system">排除系统应用</string>
     <string name="tp_clip_exclude_system_summary">排除所有系统应用，无论单个选项如何</string>
-    <string name="tp_clip_notice">暂未实现：这些设置不会生效。</string>
     <string name="tp_hist_just_now">刚刚</string>
     <string name="tp_hist_minutes_ago">%1$d 分钟前</string>
     <string name="tp_hist_hours_ago">%1$d小时前</string>
@@ -138,4 +137,9 @@
     <string name="shell_status_root_connected">Root 已连接</string>
     <string name="shell_status_root_unavailable">无法获取 root 权限，请确认已授予本应用 root 权限</string>
     <string name="shell_root_fallback">无法获取 root 权限，已切换回 Shizuku 模式</string>
+    <string name="tp_clip_accessed">%1$s 访问了剪贴板</string>
+    <string name="tp_clip_denied">%1$s 访问剪贴板被拒绝</string>
+    <string name="tp_clip_allow">允许</string>
+    <string name="tp_clip_notif_title">剪贴板监视器运行中</string>
+    <string name="tp_clip_notif_channel">剪贴板监视器</string>
 </resources>

@@ -44,6 +44,11 @@ class MainActivity : ComponentActivity() {
         modeChosen = getSharedPreferences(UI_PREFS, Context.MODE_PRIVATE)
             .getBoolean(KEY_MODE_CHOSEN, false)
         restoreBackgroundMonitor()
+        runCatching {
+            if (getSharedPreferences(UI_PREFS, Context.MODE_PRIVATE).getBoolean("clip_enabled", false) &&
+                android.provider.Settings.canDrawOverlays(this)
+            ) dev.izumi.appopsnext.clipboard.ClipboardMonitorService.start(this)
+        }
 
         setContent {
             val diagnostics by diagnosticsViewModel.uiState.collectAsStateWithLifecycle()
